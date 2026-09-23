@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسابقة الجمع</title>
+<script>
+window.addEventListener('error', function(e){
+  try{
+    var msg = '⚠️ خطأ برمجي: ' + (e.message || 'غير معروف') + ' — السطر ' + (e.lineno || '؟');
+    var show = function(){
+      var el = document.getElementById('__errBanner');
+      if(!el){
+        el = document.createElement('div');
+        el.id = '__errBanner';
+        el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e74c3c;color:#fff;padding:14px 10px;text-align:center;font-family:sans-serif;font-weight:700;z-index:999999;direction:rtl;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.3);';
+        document.body.insertBefore(el, document.body.firstChild);
+      }
+      el.textContent = msg;
+    };
+    if(document.body) show();
+    else document.addEventListener('DOMContentLoaded', show);
+  }catch(err){}
+});
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --teal:#0f8b8d; --teal-dark:#0b6567; --teal-light:#e6f5f5;
+    --gold:#f2b705; --coral:#ff6b6b; --blue:#2f7de1;
+    --green:#2ecc71; --red:#e74c3c; --ink:#1e3a3a;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:'Cairo',sans-serif; direction:rtl;
+    background:linear-gradient(160deg,var(--teal-light),#fff 55%);
+    color:var(--ink); display:flex; flex-direction:column; align-items:center;
+  }
+  .topbar{
+    width:100%; background:linear-gradient(90deg,var(--teal),var(--teal-dark));
+    color:#fff; padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 4px 14px rgba(0,0,0,.12);
+  }
+  .topbar .brand{font-family:'Tajawal',sans-serif; font-weight:800; font-size:1.25rem;}
+  .topbar .sub{font-size:.85rem; opacity:.9; margin-top:2px;}
+  .back-link{
+    background:rgba(255,255,255,.18); color:#fff; text-decoration:none;
+    padding:8px 16px; border-radius:30px; font-weight:700; font-size:.9rem;
+    border:1px solid rgba(255,255,255,.4);
+  }
+
+  .wrap{width:100%; max-width:820px; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px;}
+  .card{
+    background:var(--card); border-radius:22px; box-shadow:0 10px 30px rgba(15,139,141,.15);
+    padding:28px; width:100%; text-align:center;
+  }
+  h1{font-family:'Tajawal',sans-serif; font-size:1.5rem; color:var(--teal-dark); margin:0 0 8px; font-weight:800;}
+  h2{font-family:'Tajawal',sans-serif; font-size:1.1rem; color:var(--teal-dark); margin:0 0 12px; font-weight:800;}
+  p.desc{color:#557; font-size:1rem; margin:0 0 20px; line-height:1.8;}
+
+  label{display:block; text-align:right; font-weight:700; margin:14px 0 6px; color:var(--teal-dark);}
+  select, input[type=text], input[type=tel]{
+    width:100%; padding:14px; border-radius:14px; border:2px solid #d7ecec;
+    font-family:'Cairo',sans-serif; font-size:1rem; text-align:right; direction:rtl;
+    background:#fbfffe;
+  }
+  select:focus, input:focus{outline:none; border-color:var(--teal);}
+  .hint{font-size:.8rem; color:#789; margin-top:6px; text-align:right;}
+  .err{color:var(--red); font-weight:700; font-size:.9rem; margin-top:8px; display:none;}
+
+  .mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:560px){.mode-grid{grid-template-columns:1fr;}}
+  .mode-btn{
+    border:none; border-radius:18px; padding:26px 14px; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:1.05rem; color:#fff;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+  }
+  .mode-btn:active{transform:scale(.96);}
+  .mode-btn.official{background:linear-gradient(135deg,var(--teal),var(--teal-dark));}
+  .mode-btn.free{background:linear-gradient(135deg,var(--gold),#d99a00);}
+  .mode-btn.mcq{background:linear-gradient(135deg,var(--blue),#1d5bb8);}
+  .mode-btn.typed{background:linear-gradient(135deg,var(--teal),var(--teal-dark));}
+  .mode-btn .ic{font-size:2.2rem;}
+  .mode-btn .note{font-size:.76rem; font-weight:600; opacity:.9; font-family:'Tajawal',sans-serif;}
+
+  .cat-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+  @media(max-width:520px){.cat-grid{grid-template-columns:1fr;}}
+  .cat-btn{
+    border:2px solid var(--teal); background:var(--teal-light); border-radius:18px;
+    padding:24px 10px; cursor:pointer; font-family:'Tajawal',sans-serif; font-weight:900;
+    color:var(--teal-dark); font-size:1.5rem; display:flex; flex-direction:column; gap:6px;
+  }
+  .cat-btn .small{font-size:.8rem; font-weight:600; color:#5a8a8a; font-family:'Cairo',sans-serif;}
+  .cat-btn:active{background:var(--teal); color:#fff;}
+
+  .ghost-btn{
+    margin-top:10px; width:100%; padding:12px; border:2px solid #d7ecec; border-radius:14px;
+    background:#fff; color:var(--teal-dark); font-family:'Cairo',sans-serif; font-weight:700;
+    font-size:.95rem; cursor:pointer;
+  }
+  .primary-btn{
+    margin-top:6px; width:100%; padding:16px; border:none; border-radius:16px;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark)); color:#fff;
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:1.1rem; cursor:pointer;
+    box-shadow:0 8px 18px rgba(15,139,141,.3);
+  }
+  .primary-btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* leaderboard preview / dashboard table */
+  table.lead{width:100%; border-collapse:collapse; background:#fff; border-radius:14px; overflow:hidden; font-family:'Tajawal',sans-serif;}
+  table.lead th, table.lead td{padding:9px 6px; text-align:center; border-bottom:1px solid #eef5f5; font-size:.85rem;}
+  table.lead th{background:var(--teal-light); color:var(--teal-dark); font-weight:800; font-family:'Cairo',sans-serif;}
+  table.lead tr:nth-child(even){background:#fbfffe;}
+  .rank-1{color:#c9960c; font-weight:900;}
+  .rank-2{color:#8a8a8a; font-weight:900;}
+  .rank-3{color:#a15c2f; font-weight:900;}
+  .del-btn{border:none; background:none; cursor:pointer; font-size:1.1rem; padding:4px 8px; border-radius:8px; opacity:.75;}
+  .del-btn:active{opacity:1; background:#ffe5e5;}
+  .mode-badge{display:inline-block; padding:3px 9px; border-radius:20px; font-size:.72rem; font-weight:800; font-family:'Cairo',sans-serif;}
+  .mode-badge.mcq{background:#e5edfc; color:#1d5bb8;}
+  .mode-badge.typed{background:var(--teal-light); color:var(--teal-dark);}
+
+  .compare-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%;}
+  @media(max-width:520px){.compare-row{grid-template-columns:1fr;}}
+  .class-card{border-radius:20px; overflow:hidden; box-shadow:0 10px 26px rgba(0,0,0,.1); background:#fff;}
+  .class-banner{padding:10px 8px; font-family:'Cairo',sans-serif; font-weight:900; font-size:.95rem; color:#fff;}
+  .class-banner.win{background:linear-gradient(135deg,var(--green),#219150);}
+  .class-banner.lose{background:linear-gradient(135deg,var(--red),#b93223);}
+  .class-body{padding:16px 12px;}
+  .class-name{font-family:'Tajawal',sans-serif; font-weight:800; font-size:1.15rem; color:var(--teal-dark); margin-bottom:10px;}
+  .class-stats{display:flex; flex-direction:column; gap:6px; font-size:.85rem; color:#557; font-family:'Tajawal',sans-serif;}
+  .class-stats span.lbl{font-family:'Cairo',sans-serif; color:#557;}
+  .class-stats b{font-family:'Tajawal',sans-serif; color:var(--ink); font-size:.95rem;}
+  .class-best{
+    margin-top:10px; padding-top:10px; border-top:1px dashed #dde;
+    font-size:.82rem; color:#557; font-family:'Cairo',sans-serif; text-align:right;
+  }
+  .class-best b{font-family:'Tajawal',sans-serif; color:var(--teal-dark);}
+
+  .dash-tabs{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px;}
+  .dash-tab{
+    border:2px solid var(--teal); background:#fff; color:var(--teal-dark); border-radius:30px;
+    padding:8px 18px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; font-size:.85rem;
+  }
+  .dash-tab.active{background:var(--teal); color:#fff;}
+
+  /* Game screen */
+  .game-wrap{width:100%; max-width:820px; display:flex; flex-direction:column; gap:14px;}
+  .stats-row{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .pill{
+    background:#fff; border-radius:30px; padding:10px 18px; font-weight:800; font-size:1.15rem;
+    box-shadow:0 4px 12px rgba(0,0,0,.08); color:var(--teal-dark); display:flex; align-items:center; gap:6px;
+    font-family:'Tajawal',sans-serif;
+  }
+  .progress-track{width:100%; height:10px; background:#dcefee; border-radius:10px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--teal),var(--gold)); transition:width .3s;}
+
+  .clock-wrap{position:relative; width:130px; height:130px; margin:4px auto 6px;}
+  .clock-svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .clock-track{fill:none; stroke:#dcefee; stroke-width:9;}
+  .clock-progress{
+    fill:none; stroke:url(#clockGrad); stroke-width:9; stroke-linecap:round;
+    stroke-dasharray:326.7; stroke-dashoffset:326.7; transition:stroke-dashoffset .3s linear;
+  }
+  .clock-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;}
+  .clock-center .clock-icon{font-size:1.2rem;}
+  .clock-center span:last-child{font-family:'Tajawal',sans-serif; font-weight:800; font-size:1.5rem; color:var(--teal-dark); direction:ltr;}
+
+  .equation-card{
+    background:#fff; border-radius:26px; padding:34px 20px 26px; text-align:center;
+    box-shadow:0 14px 34px rgba(15,139,141,.18);
+  }
+  .mode-tag{
+    display:inline-block; margin-bottom:14px; padding:5px 16px; border-radius:20px;
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:.8rem;
+    background:var(--teal-light); color:var(--teal-dark);
+  }
+  .equation{
+    font-family:'Tajawal',sans-serif; font-weight:900;
+    font-size:clamp(3rem,12vw,4.6rem); color:var(--ink); letter-spacing:2px;
+    direction:ltr; unicode-bidi:bidi-override;
+  }
+  .equation .op{color:var(--coral); margin:0 10px; font-weight:900;}
+
+  /* المعادلة العمودية (لجمع ثلاثة أعداد) */
+  .equation-vertical{
+    display:inline-flex; flex-direction:column; align-items:flex-end; margin:0 auto;
+    font-family:'Tajawal',sans-serif; font-weight:900;
+    font-size:clamp(2.2rem,9vw,3.4rem); color:var(--ink);
+  }
+  .ev-row{display:flex; align-items:center; gap:12px; direction:ltr;}
+  .ev-row .op{color:var(--coral); width:1.1ch; text-align:center; font-weight:900; visibility:hidden;}
+  .ev-row.ev-last .op{visibility:visible;}
+  .ev-row .ev-num{direction:ltr; unicode-bidi:bidi-override;}
+  .ev-line{width:100%; border-top:5px solid var(--ink); border-radius:3px; margin-top:8px;}
+
+  /* اختيار الشكل (عمودي / أفقي) */
+  .mode-btn.vertical{background:linear-gradient(135deg,var(--coral),#c0392b);}
+  .mode-btn.horizontal{background:linear-gradient(135deg,var(--blue),#1d5bb8);}
+
+  /* عنوان قسم مسابقة داخل الصفحة الرئيسية */
+  .section-title{
+    width:100%; text-align:center; font-family:'Tajawal',sans-serif; font-weight:900;
+    font-size:1.05rem; color:var(--teal-dark); margin:6px 0 -6px; padding-top:10px;
+    border-top:2px dashed #cfe6e6;
+  }
+  .section-title:first-child{border-top:none; padding-top:0; margin-top:0;}
+  .result-clock{font-size:.95rem; color:#789; margin-top:4px; font-family:'Tajawal',sans-serif;}
+
+  .answer-box{
+    margin:18px auto 8px; min-height:64px; min-width:140px; display:inline-flex; align-items:center; justify-content:center;
+    background:var(--teal-light); border:3px solid var(--teal); border-radius:16px; padding:6px 24px;
+    font-family:'Tajawal',sans-serif; font-weight:900; font-size:2.2rem; color:var(--teal-dark);
+    direction:ltr; unicode-bidi:bidi-override;
+  }
+  .answer-box.empty{color:#9dbcbc;}
+  .answer-box.wrong{border-color:var(--red); background:#fdecea; color:var(--red);}
+  .answer-box.correct{border-color:var(--green); background:#eafaf1; color:#1e8449;}
+
+  .keypad{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:16px;}
+  @media(max-width:420px){.keypad{grid-template-columns:repeat(5,1fr); gap:7px;}}
+  .key-btn{
+    border:none; border-radius:14px; padding:16px 4px; cursor:pointer;
+    font-family:'Tajawal',sans-serif; font-weight:900; font-size:1.4rem; color:#fff;
+    background:linear-gradient(135deg,var(--blue),#1d5bb8); box-shadow:0 6px 14px rgba(47,125,225,.3);
+  }
+  .key-btn:active{transform:scale(.93);}
+  .key-btn:disabled{opacity:.55;}
+  .key-btn.correct{background:linear-gradient(135deg,var(--green),#219150) !important;}
+  .key-btn.wrong{background:linear-gradient(135deg,var(--red),#b93223) !important;}
+  .keypad-actions{display:flex; gap:10px; margin-top:12px;}
+  .key-action{
+    flex:1; border:none; border-radius:14px; padding:14px 4px; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:1rem; color:#fff;
+  }
+  .key-clear{background:linear-gradient(135deg,#8a97a3,#5f6b76);}
+  .key-submit{background:linear-gradient(135deg,var(--green),#219150);}
+  .key-submit:disabled{opacity:.5; cursor:not-allowed;}
+
+  .feedback-flash{margin-top:14px; font-weight:800; font-size:1.1rem; min-height:1.6em;}
+  .feedback-flash.ok{color:var(--green);}
+  .feedback-flash.bad{color:var(--red);}
+
+  .result-card{text-align:center;}
+  .result-emoji{font-size:4rem; margin-bottom:6px;}
+  .result-score{font-family:'Tajawal',sans-serif; font-size:2.4rem; font-weight:900; color:var(--teal-dark);}
+  .result-time{font-size:1.1rem; color:#557; margin-top:6px; font-family:'Tajawal',sans-serif;}
+  .encourage-msg{
+    margin-top:14px; padding:14px 18px; border-radius:16px; font-weight:800; font-size:1.05rem;
+    background:linear-gradient(135deg,#fff6da,#ffe9a8); color:#8a5c00; border:2px solid var(--gold);
+  }
+  #sendStatus{margin-top:14px; font-weight:700; font-size:.95rem;}
+  #sendStatus.ok{color:var(--green);}
+  #sendStatus.bad{color:var(--red);}
+  #sendStatus.wait{color:#889;}
+
+  .export-stage{position:fixed; left:-99999px; top:0; z-index:-1;}
+  .export-card{
+    width:900px; background:#ffffff; padding:36px 40px 30px;
+    font-family:'Cairo',sans-serif; direction:rtl; border:6px solid var(--teal); box-sizing:border-box;
+  }
+  .export-card .ec-head{text-align:center; border-bottom:3px solid var(--teal); padding-bottom:16px; margin-bottom:20px;}
+  .export-card .ec-school{font-family:'Tajawal',sans-serif; font-weight:800; font-size:1.5rem; color:var(--teal-dark);}
+  .export-card .ec-sub{font-size:1rem; color:#557; margin-top:6px;}
+  .export-card .ec-badge{display:inline-block; margin-top:10px; background:var(--gold); color:#4a3400; padding:6px 20px; border-radius:30px; font-weight:800; font-size:1.05rem;}
+  .export-card table{width:100%; border-collapse:collapse; margin-top:10px;}
+  .export-card th, .export-card td{padding:12px 10px; text-align:center; font-size:1.02rem; border-bottom:1px solid #e3f0f0; font-family:'Tajawal',sans-serif;}
+  .export-card th{background:var(--teal); color:#fff; font-weight:800; font-family:'Cairo',sans-serif;}
+  .export-card tr:nth-child(even) td{background:#f6fbfb;}
+  .export-card .ec-rank{font-family:'Tajawal',sans-serif; font-weight:900; font-size:1.15rem;}
+  .export-card .ec-rank.gold{color:#c9960c;} .export-card .ec-rank.silver{color:#8a8a8a;} .export-card .ec-rank.bronze{color:#a15c2f;}
+  .export-card .ec-name{font-weight:700; text-align:right;}
+  .export-card .ec-foot{margin-top:22px; text-align:center; font-size:.92rem; color:#789; border-top:1px dashed #cde; padding-top:14px;}
+  .card-preview-wrap{overflow-x:auto; border-radius:14px; border:1px solid #e3f0f0; margin-bottom:14px;}
+  .export-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; margin:6px 0 16px; padding:14px; background:var(--teal-light); border-radius:16px;}
+  .export-bar label{margin:0; font-size:.9rem;}
+  .export-bar select{width:auto; padding:8px 14px;}
+  .export-bar .primary-btn{margin-top:0; width:auto; padding:10px 20px; font-size:.95rem;}
+
+  .hidden{display:none !important;}
+  .footer-note{font-size:.78rem; color:#8aa; text-align:center; margin-top:10px;}
+  .sample-note{font-size:.78rem; color:#96a; margin-top:10px;}
+
+  /* بطل التحدي — يظهر فورًا لكل زائر في الصفحة الرئيسية */
+  .champion-card{
+    background:linear-gradient(135deg,#fff6da,#ffe9a8); border:3px solid var(--gold);
+    box-shadow:0 12px 30px rgba(242,183,5,.3);
+  }
+  .champion-icon{font-size:2.6rem; margin-bottom:4px;}
+  .champion-label{font-family:'Cairo',sans-serif; font-weight:800; font-size:.9rem; color:#8a5c00; opacity:.9;}
+  .champion-name{font-family:'Tajawal',sans-serif; font-weight:900; font-size:1.4rem; color:#5c3d00; margin:6px 0 4px;}
+  .champion-meta{font-family:'Tajawal',sans-serif; font-weight:700; font-size:.95rem; color:#8a5c00;}
+  .champion-challenge{
+    margin-top:12px; font-family:'Cairo',sans-serif; font-weight:800; font-size:.95rem;
+    color:#fff; background:linear-gradient(135deg,var(--coral),#c0392b);
+    display:inline-block; padding:8px 18px; border-radius:30px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="brand">➕ مسابقة الجمع</div>
+    <div class="sub">جمع عددين أو ثلاثة أعداد — إجابة جاهزة أو اكتبها بنفسك</div>
+  </div>
+  <a href="index.html" class="back-link">🏠 الرئيسية</a>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ HOME (يضم كل المسابقات — الأحدث في الأعلى) ============ -->
+  <div class="screen" id="screen-home">
+
+    <!-- ===== قسم: مسابقة جمع ثلاثة أعداد (جديد — في الأعلى) ===== -->
+    <div class="section-title">📘 الدرس: جمع ثلاثة أعداد</div>
+
+    <div class="card champion-card hidden" id="championCard3">
+      <div class="champion-icon">🏆</div>
+      <div class="champion-label">بطل التحدي حاليًا — جمع ثلاثة أعداد</div>
+      <div class="champion-name" id="championName3">—</div>
+      <div class="champion-meta" id="championMeta3">—</div>
+      <div class="champion-challenge">🔥 هل تقدر تتفوق عليه وتاخذ مكانه؟ جرّب الآن!</div>
+    </div>
+
+    <div class="card">
+      <h1>➕➕ مسابقة جمع ثلاثة أعداد</h1>
+      <p class="desc">اجمع ثلاثة أعداد معًا — اختر الشكل العمودي أو الأفقي، وطريقة الإجابة التي تناسبك.</p>
+      <div class="mode-grid">
+        <button class="mode-btn official" onclick="startOfficial('3num')">
+          <span class="ic">🏫</span>
+          مشاركة رسمية
+          <span class="note">تسجل باسمك ورقم هويتك وتُرسل نتيجتك للمعلم</span>
+        </button>
+        <button class="mode-btn free" onclick="startFree('3num')">
+          <span class="ic">🏠</span>
+          لعب حر
+          <span class="note">تدريب فقط بدون إرسال أي بيانات</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:100%;">
+      <h2>🏆 الطلاب المتميزون اليوم — جمع ثلاثة أعداد</h2>
+      <table class="lead" id="homeLeadTable3"><tbody><tr><td>جارٍ التحميل...</td></tr></tbody></table>
+    </div>
+
+    <div class="card" style="max-width:100%;">
+      <h2>🥇 منافسة الفصلين — جمع ثلاثة أعداد</h2>
+      <div class="compare-row" id="classCompareRow3"><p class="desc">جارٍ التحميل...</p></div>
+      <div class="sample-note">* الترتيب يُحسب من الدقة أولًا ثم السرعة</div>
+    </div>
+
+    <!-- ===== قسم: مسابقة جمع عددين (القديمة — في الأسفل) ===== -->
+    <div class="section-title">📗 الدرس: جمع عددين</div>
+
+    <div class="card champion-card hidden" id="championCard">
+      <div class="champion-icon">🏆</div>
+      <div class="champion-label">بطل التحدي حاليًا — جمع عددين</div>
+      <div class="champion-name" id="championName">—</div>
+      <div class="champion-meta" id="championMeta">—</div>
+      <div class="champion-challenge">🔥 هل تقدر تتفوق عليه وتاخذ مكانه؟ جرّب الآن!</div>
+    </div>
+
+    <div class="card">
+      <h1>أهلاً بك 👋</h1>
+      <p class="desc">مسابقة جمع بسيطة: احسب الناتج، واختر طريقة الإجابة التي تناسبك.</p>
+      <div class="mode-grid">
+        <button class="mode-btn official" onclick="startOfficial('2num')">
+          <span class="ic">🏫</span>
+          مشاركة رسمية
+          <span class="note">تسجل باسمك ورقم هويتك وتُرسل نتيجتك للمعلم</span>
+        </button>
+        <button class="mode-btn free" onclick="startFree('2num')">
+          <span class="ic">🏠</span>
+          لعب حر
+          <span class="note">تدريب فقط بدون إرسال أي بيانات</span>
+        </button>
+      </div>
+      <button class="ghost-btn" onclick="openTeacherGate()">👨‍🏫 دخول المعلم (لوحة النتائج)</button>
+    </div>
+
+    <div class="card" style="max-width:100%;">
+      <h2>🏆 الطلاب المتميزون اليوم — جمع عددين</h2>
+      <table class="lead" id="homeLeadTable"><tbody><tr><td>جارٍ التحميل...</td></tr></tbody></table>
+    </div>
+
+    <div class="card" style="max-width:100%;">
+      <h2>🥇 منافسة الفصلين — جمع عددين</h2>
+      <div class="compare-row" id="classCompareRow"><p class="desc">جارٍ التحميل...</p></div>
+      <div class="sample-note">* الترتيب يُحسب من الدقة أولًا ثم السرعة</div>
+    </div>
+  </div>
+
+  <!-- ============ OFFICIAL REGISTRATION ============ -->
+  <div class="card screen hidden" id="screen-register">
+    <h1>🏫 مشاركة رسمية</h1>
+    <p class="desc">اختر اسمك من القائمة، وأدخل رقم هويتك.</p>
+    <label for="nameSelect">اسم الطالب</label>
+    <select id="nameSelect"></select>
+    <label for="idInput">رقم الهوية الوطنية</label>
+    <input type="tel" id="idInput" inputmode="numeric" placeholder="أدخل رقم الهوية" maxlength="12">
+    <div class="hint">سيُستخدم هذا الرقم لتسجيل دخولك تلقائيًا في المسابقات القادمة.</div>
+    <div class="err" id="registerErr">الرجاء اختيار الاسم وإدخال رقم هوية صحيح (٤ أرقام فأكثر).</div>
+    <button class="primary-btn" onclick="submitRegistration()">متابعة ✅</button>
+    <button class="ghost-btn" onclick="goHome()">رجوع</button>
+  </div>
+
+  <!-- ============ ANSWER MODE PICK ============ -->
+  <div class="card screen hidden" id="screen-mode">
+    <h1>اختر طريقة الإجابة</h1>
+    <p class="desc">يمكنك اختيار الطريقة التي تفضّلها لهذه المحاولة:</p>
+    <div class="mode-grid">
+      <button class="mode-btn mcq" onclick="chooseMode('mcq')">
+        <span class="ic">🔟</span>
+        إجابات جاهزة
+        <span class="note">١٠ خيارات — اختر الناتج الصحيح من بينها</span>
+      </button>
+      <button class="mode-btn typed" onclick="chooseMode('typed')">
+        <span class="ic">⌨️</span>
+        أكتب الإجابة بنفسي
+        <span class="note">لوحة أرقام (٠-٩) لبناء الناتج بنفسك</span>
+      </button>
+    </div>
+    <button class="ghost-btn" onclick="goHome()">رجوع</button>
+  </div>
+
+  <!-- ============ FORMAT PICK (عمودي يمين / أفقي يسار) — لجمع ثلاثة أعداد فقط ============ -->
+  <div class="card screen hidden" id="screen-format">
+    <h1>اختر شكل المسألة</h1>
+    <p class="desc">يمكنك اختيار الشكل الذي تفضّله لهذه المحاولة:</p>
+    <div class="mode-grid">
+      <button class="mode-btn vertical" onclick="chooseFormat('vertical')">
+        <span class="ic">🧮</span>
+        عمودي
+        <span class="note">الأعداد فوق بعضها بخط أسفلها</span>
+      </button>
+      <button class="mode-btn horizontal" onclick="chooseFormat('horizontal')">
+        <span class="ic">➡️</span>
+        أفقي
+        <span class="note">الأعداد بجانب بعضها في سطر واحد</span>
+      </button>
+    </div>
+    <button class="ghost-btn" onclick="showScreen('screen-mode')">رجوع</button>
+  </div>
+
+  <!-- ============ CATEGORY PICK ============ -->
+  <div class="card screen hidden" id="screen-category">
+    <h1 id="catTitle">اختر عدد الأسئلة</h1>
+    <div class="cat-grid" id="catGrid"></div>
+    <button class="ghost-btn" onclick="categoryBack()">رجوع</button>
+  </div>
+
+  <!-- ============ GAME ============ -->
+  <div class="game-wrap screen hidden" id="screen-game">
+    <div class="clock-wrap">
+      <svg class="clock-svg" viewBox="0 0 120 120">
+        <defs>
+          <linearGradient id="clockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f8b8d"></stop>
+            <stop offset="100%" stop-color="#f2b705"></stop>
+          </linearGradient>
+        </defs>
+        <circle class="clock-track" cx="60" cy="60" r="52"></circle>
+        <circle class="clock-progress" id="clockProgress" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="clock-center">
+        <span class="clock-icon">⏱️</span>
+        <span id="stopwatch">٠٠:٠٠</span>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="pill">📋 <span id="qProgress">١ / ٥</span></div>
+      <div class="pill">⭐ <span id="scoreLive">٠</span></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="equation-card">
+      <div class="mode-tag" id="modeTag">⌨️ اكتب الإجابة بنفسك</div>
+      <div class="equation" id="equationDisplay">٧ + ٨</div>
+      <div class="equation-vertical hidden" id="equationVertical">
+        <div id="evRows"></div>
+        <div class="ev-line"></div>
+      </div>
+
+      <div id="typedBlock">
+        <div class="answer-box empty" id="answerBox">؟</div>
+        <div class="keypad" id="keypad"></div>
+        <div class="keypad-actions">
+          <button class="key-action key-clear" onclick="clearAnswer()">⌫ مسح</button>
+          <button class="key-action key-submit" id="submitBtn" onclick="submitAnswer()" disabled>✅ تأكيد الإجابة</button>
+        </div>
+      </div>
+
+      <div id="mcqBlock" class="hidden">
+        <div class="keypad" id="mcqGrid"></div>
+      </div>
+
+      <div class="feedback-flash" id="feedback"></div>
+    </div>
+  </div>
+
+  <!-- ============ RESULT ============ -->
+  <div class="card result-card screen hidden" id="screen-result">
+    <div class="result-emoji" id="resultEmoji">🌟</div>
+    <h1 id="resultTitle">أحسنت!</h1>
+    <div class="result-score" id="resultScore">٨ / ١٠</div>
+    <div class="result-time" id="resultTime">الزمن: ٠١:٢٠</div>
+    <div class="result-clock" id="resultClockTime">🕐 —</div>
+    <div class="encourage-msg hidden" id="encourageMsg"></div>
+    <div id="sendStatus" class="wait"></div>
+    <button class="ghost-btn" onclick="goHome()">🔁 مسابقة جديدة</button>
+  </div>
+
+  <!-- ============ TEACHER PIN GATE ============ -->
+  <div class="card screen hidden" id="screen-pin">
+    <h1>🔒 دخول المعلم</h1>
+    <p class="desc">أدخل الرقم السري للوصول إلى لوحة النتائج.</p>
+    <input type="tel" id="pinInput" inputmode="numeric" maxlength="8" placeholder="الرقم السري (٨ أرقام)">
+    <div class="err" id="pinErr">رقم سري غير صحيح.</div>
+    <button class="primary-btn" onclick="checkPin()">دخول</button>
+    <button class="ghost-btn" onclick="goHome()">رجوع</button>
+  </div>
+
+  <!-- ============ TEACHER DASHBOARD ============ -->
+  <div class="card screen hidden" id="screen-dashboard" style="max-width:100%;">
+    <h1>📊 لوحة نتائج المسابقات</h1>
+    <div class="dash-tabs" id="dashCompTabs"></div>
+    <div class="dash-tabs" id="dashModeTabs"></div>
+    <div class="dash-tabs" id="dashCatTabs"></div>
+    <div id="dashContent"><p class="desc">جارٍ تحميل النتائج...</p></div>
+
+    <div class="export-bar">
+      <label>عدد الطلاب في البطاقة:</label>
+      <select id="exportCountSelect">
+        <option value="5">أفضل ٥ طلاب</option>
+        <option value="10" selected>أفضل ١٠ طلاب</option>
+        <option value="all">جميع المشاركين</option>
+      </select>
+      <button class="primary-btn" onclick="renderExportPreview()">🖼️ معاينة البطاقة</button>
+    </div>
+    <div class="card-preview-wrap hidden" id="cardPreviewWrap"></div>
+    <div class="export-bar hidden" id="exportActionsBar">
+      <button class="primary-btn" onclick="downloadCardImage()">⬇️ تنزيل كصورة</button>
+      <button class="ghost-btn" style="width:auto; margin:0; padding:10px 20px;" onclick="printExportCard()">🖨️ طباعة / PDF</button>
+    </div>
+
+    <button class="ghost-btn" onclick="loadDashboard()">🔄 تحديث النتائج</button>
+    <button class="ghost-btn" onclick="openChangePin()">🔑 تغيير الرقم السري</button>
+    <button class="ghost-btn" onclick="goHome()">رجوع</button>
+  </div>
+
+  <!-- ============ CHANGE PIN ============ -->
+  <div class="card screen hidden" id="screen-change-pin">
+    <h1>🔑 تغيير الرقم السري</h1>
+    <p class="desc">أدخل الرقم السري الحالي، ثم رقمًا سريًا جديدًا مكوّنًا من ٨ أرقام.</p>
+    <label for="oldPinInput">الرقم السري الحالي</label>
+    <input type="tel" id="oldPinInput" inputmode="numeric" maxlength="8" placeholder="الرقم الحالي">
+    <label for="newPinInput">الرقم السري الجديد</label>
+    <input type="tel" id="newPinInput" inputmode="numeric" maxlength="8" placeholder="٨ أرقام">
+    <label for="newPinInput2">تأكيد الرقم الجديد</label>
+    <input type="tel" id="newPinInput2" inputmode="numeric" maxlength="8" placeholder="أعد كتابة الرقم الجديد">
+    <div class="err" id="changePinErr">تحقق من الرقم الحالي، وأن الرقم الجديد ٨ أرقام ومتطابق في الحقلين.</div>
+    <div class="feedback-flash ok" id="changePinSuccess" style="display:none;">تم تغيير الرقم السري بنجاح ✅</div>
+    <button class="primary-btn" onclick="saveNewPin()">حفظ الرقم الجديد</button>
+    <button class="ghost-btn" onclick="showScreen('screen-dashboard')">رجوع للوحة النتائج</button>
+  </div>
+
+  <div class="footer-note">منصة العب وتعلم — الأستاذ محمد مشعل العنزي</div>
+</div>
+
+<div class="export-stage"><div class="export-card" id="exportCard"></div></div>
+
+<script>
+(function(){
+
+/* =========================================================================
+   ⚙️ إعدادات — نفس مشروع Supabase المستخدم في مسابقات الدروس السابقة
+   ========================================================================= */
+const SUPABASE_URL = 'https://yclpmibmojmvokcdthba.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljbHBtaWJtb2ptdm9rY2R0aGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNjgwODcsImV4cCI6MjEwMzk0NDA4N30.2dBWnh06LWBbLB6IRFvErn2pKJM2ZJwNviEJ_mIf5b8';
+
+// إعداد كل مسابقة: الوسم الذي يفصل نتائجها في جدول واحد مشترك، وعدد الأعداد المجموعة،
+// وهل تحتاج شاشة اختيار شكل (عمودي/أفقي)، وفئات عدد الأسئلة المتاحة لها.
+const COMPETITIONS = {
+  '3num': {
+    tag: 'addition-3num', operands: 3, needsFormat: true,
+    title: 'مسابقة جمع ثلاثة أعداد', shortTitle: 'جمع ٣ أعداد',
+    categories: [
+      { n: 1, label: 'تجربة', small: 'سؤال واحد' },
+      { n: 5, label: '٥', small: 'أسئلة' },
+      { n: 10, label: '١٠', small: 'أسئلة' },
+      { n: 15, label: '١٥', small: 'سؤال' }
+    ]
+  },
+  '2num': {
+    tag: 'addition-general', operands: 2, needsFormat: false,
+    title: 'مسابقة جمع عددين', shortTitle: 'جمع عددين',
+    categories: [
+      { n: 5, label: '٥', small: 'أسئلة' },
+      { n: 10, label: '١٠', small: 'أسئلة' },
+      { n: 15, label: '١٥', small: 'سؤال' }
+    ]
+  }
+};
+
+const STUDENT_ROSTER_SEC1 = [
+  'ابراهيم مساعد عبدالرحمن النفيسه','باسل بدر بن عبدالعزيز البعيجان','حمد عبدالله فواز الدوسري',
+  'حمزة محمدصالح حمدو سلامة','خالد عبدالملك احمد الحذيفي','خالد علي أحمد المهري','خالد وسيم سالم الخشل',
+  'رائد زيد بن عبدالرحمن المقيص','ريان حمزه عاطف مطر','زيد فارس زيد العبلان','شداد فلاح شداد آل بريك',
+  'عبدالرحمن راشد بن عبدالرحمن العبدالوهاب','عبداللطيف محمد عبداللطيف رفاعية','علي محمد عوض بن نشوان',
+  'غسان خالد ابراهيم الحميدان','فهيد جابر فهيد القحطاني','كريم عاصم حيدر أغا','ماجد خالد عبدالرحمن المرضي',
+  'مالك عمر علي حميد الوصابي','محمد احمد صالح الجويعي','محمد سعد محمد التميمي','محمد عبدالله احمد اسماعيل السلامي',
+  'محمد عبدالله بن خالد الحمزه','محمد نور فايز عبيد الجوار','مشاري محمد بن مقبول النفيعي',
+  'معتز عبدالرحمن بن صالح العامر','مهند عبدالمجيد راشد المطوع','نايف عبدالعزيز محمد المصلوخ',
+  'وسام محمد - البصيري','يوسف فهد يوسف الخيبري'
+];
+const STUDENT_ROSTER_SEC2 = [
+  'بتال مشاري عبدالرحمن النفيسه','خالد عبدالعزيز صالح الغامدي','خالد محمد بن مبارك التميمي',
+  'زين الدين عدنان قاسم المحمد','سعد عبدالعزيز صالح الدوك','سلمان عبدالعزيز محمد عيد','سليمان خالد بن ابديوي العنزي',
+  'عاصم بانقا احمد ابراهيم','عبدالله احمد بن محمد الزهراني','عبدالله خالد بن سعود أبودجين','عبدالله علي محمد عسيري',
+  'عبدالله مهند سعد الشهراني','عزام فهد محمد الدوسري','علي محمد سعد العجمي','عمار عبدالعزيز زامل الحربي',
+  'فارس فهيد محسن آل فهاد','فارس محمد بن مطلق العتيبي','فالح فهد عبدالله الدوسري','فهد سالم بن عبدالله بن ثنيان',
+  'مبارك مهدي بن مبارك الدوسري','محمد عبدالرحمن محمد العنقري','محمد عبدالمجيد محمد المطرود','محمد ماجد كاين الشراري',
+  'محمد نايف مبارك خالد','مشاري بجاد متعب العتيبي','معاذ احمد غريب العنزي','نايف عبدالمجيد فرح المطيري',
+  'نواف محمد احمد عبده عاقل','وسام خالد بن فياض العنزي','يوسف مشعل محمد بن مقرن','يوسف يحيى عمودي الشريف'
+];
+const SECTIONS = [
+  { label: 'الفصل الأول', list: STUDENT_ROSTER_SEC1 },
+  { label: 'الفصل الثاني', list: STUDENT_ROSTER_SEC2 }
+];
+function sectionOf(name){
+  if(STUDENT_ROSTER_SEC1.includes(name)) return 'الفصل الأول';
+  if(STUDENT_ROSTER_SEC2.includes(name)) return 'الفصل الثاني';
+  return null;
+}
+
+const TEACHER_PIN_DEFAULT = '12345678';
+const PIN_KEY = 'dc_teacher_pin';
+
+/* =========================================================================
+   مخطط الجداول (نفس جداول مسابقات الدروس السابقة، بعمودين إضافيين):
+     alter table competition_results add column if not exists lesson text default '2-4';
+     alter table competition_results add column if not exists mode text default 'typed';
+     alter table competition_results add column if not exists format text default 'horizontal';
+   ========================================================================= */
+
+let supabase = null;
+try{
+  if(SUPABASE_URL && SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith('PASTE')){
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ console.warn('Supabase init failed', e); supabase = null; }
+
+function toArabicDigits(n){
+  const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+  return String(n).replace(/[0-9]/g, d => map[d]);
+}
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]] = [arr[j],arr[i]]; }
+  return arr;
+}
+function fmtTime(sec){
+  const mm = Math.floor(sec/60), ss = Math.floor(sec%60);
+  return `${toArabicDigits(String(mm).padStart(2,'0'))}:${toArabicDigits(String(ss).padStart(2,'0'))}`;
+}
+// وقت اليوم الفعلي بصيغة عربية مبسّطة، مثل "الساعة ٧:٠٥ مساءً" — مختلف عن عداد الزمن المستغرق
+function formatArabicClock(d){
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const period = h < 12 ? 'صباحًا' : 'مساءً';
+  let h12 = h % 12; if(h12 === 0) h12 = 12;
+  const mm = String(m).padStart(2,'0');
+  return `الساعة ${toArabicDigits(h12)}:${toArabicDigits(mm)} ${period}`;
+}
+
+/* ---------------- state ---------------- */
+let activeComp = '2num';       // المسابقة النشطة حاليًا: '2num' أو '3num'
+let activeFormat = 'horizontal'; // الشكل المختار (لجمع ثلاثة أعداد فقط): 'vertical' أو 'horizontal'
+let isOfficial = false;
+let studentName = '';
+let studentId = '';
+let selectedMode = 'typed';
+let questionCount = 5;
+let questions = [];
+let currentIndex = 0;
+let correctCount = 0;
+let startTime = 0;
+let timerInterval = null;
+let elapsedSeconds = 0;
+let currentInput = '';
+let answered = false;
+
+const LOGIN_KEY = 'dc_student_login';
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+function goHome(){
+  clearInterval(timerInterval);
+  showScreen('screen-home');
+  loadChampion();
+  loadHomeLeaderboard();
+  loadClassCompare();
+}
+
+/* ---------------- roster / persistent login ---------------- */
+function populateRoster(){
+  const sel = document.getElementById('nameSelect');
+  let html = '<option value="">اختر اسمك...</option>';
+  SECTIONS.forEach(sec => {
+    html += `<optgroup label="${sec.label}">`;
+    html += sec.list.map(n => `<option value="${n}">${n}</option>`).join('');
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+function loadSavedLogin(){
+  try{ const raw = localStorage.getItem(LOGIN_KEY); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+function saveLogin(id, name){ try{ localStorage.setItem(LOGIN_KEY, JSON.stringify({id, name})); }catch(e){} }
+
+function startOfficial(comp){
+  activeComp = comp || '2num';
+  isOfficial = true;
+  populateRoster();
+  const saved = loadSavedLogin();
+  showScreen('screen-register');
+  if(saved && saved.id && saved.name){
+    document.getElementById('nameSelect').value = saved.name;
+    document.getElementById('idInput').value = saved.id;
+  }
+}
+function submitRegistration(){
+  const name = document.getElementById('nameSelect').value;
+  const id = document.getElementById('idInput').value.trim();
+  const err = document.getElementById('registerErr');
+  if(!name || !/^[0-9]{4,}$/.test(id)){ err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  studentName = name; studentId = id;
+  saveLogin(id, name);
+  showScreen('screen-mode');
+}
+function startFree(comp){
+  activeComp = comp || '2num';
+  isOfficial = false; studentName = ''; studentId = '';
+  showScreen('screen-mode');
+}
+function chooseMode(mode){
+  selectedMode = mode;
+  document.getElementById('catTitle').textContent =
+    mode === 'mcq' ? 'اختر عدد الأسئلة (إجابات جاهزة)' : 'اختر عدد الأسئلة (اكتب بنفسك)';
+  if(COMPETITIONS[activeComp].needsFormat){
+    showScreen('screen-format');
+  } else {
+    activeFormat = 'horizontal';
+    buildCategoryScreen();
+    showScreen('screen-category');
+  }
+}
+function chooseFormat(fmt){
+  activeFormat = fmt;
+  buildCategoryScreen();
+  showScreen('screen-category');
+}
+function categoryBack(){
+  showScreen(COMPETITIONS[activeComp].needsFormat ? 'screen-format' : 'screen-mode');
+}
+function buildCategoryScreen(){
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = COMPETITIONS[activeComp].categories.map(c =>
+    `<button class="cat-btn" onclick="startGame(${c.n})">${c.label} <span class="small">${c.small}</span></button>`
+  ).join('');
+}
+
+/* ---------------- question generation ---------------- */
+function buildQuestions(n){
+  const operands = COMPETITIONS[activeComp].operands;
+  const list = [];
+  for(let i=0;i<n;i++){
+    const vals = [];
+    for(let k=0;k<operands;k++) vals.push(randInt(1,9));
+    const answer = vals.reduce((s,v) => s+v, 0);
+    list.push({ vals, answer });
+  }
+  return list;
+}
+
+/* ---------------- طريقة الكتابة بنفسه ---------------- */
+function buildKeypad(){
+  const pad = document.getElementById('keypad');
+  let html = '';
+  for(let d=0; d<=9; d++) html += `<button class="key-btn" onclick="pressDigit(${d})">${toArabicDigits(d)}</button>`;
+  pad.innerHTML = html;
+}
+function pressDigit(d){
+  if(answered) return;
+  if(currentInput.length >= 2) return;
+  currentInput += String(d);
+  renderAnswerBox();
+}
+function clearAnswer(){ if(answered) return; currentInput = ''; renderAnswerBox(); }
+function renderAnswerBox(){
+  const box = document.getElementById('answerBox');
+  const submitBtn = document.getElementById('submitBtn');
+  if(currentInput === ''){ box.textContent = '؟'; box.className = 'answer-box empty'; submitBtn.disabled = true; }
+  else { box.textContent = toArabicDigits(currentInput); box.className = 'answer-box'; submitBtn.disabled = false; }
+}
+function submitAnswer(){
+  if(answered || currentInput === '') return;
+  answered = true;
+  const q = questions[currentIndex];
+  const val = parseInt(currentInput, 10);
+  const correct = val === q.answer;
+  document.querySelectorAll('#keypad .key-btn').forEach(b => b.disabled = true);
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('answerBox').className = 'answer-box ' + (correct ? 'correct' : 'wrong');
+  showFeedback(correct, q.answer);
+}
+
+/* ---------------- طريقة الإجابات الجاهزة (١٠ خيارات) ---------------- */
+function buildMcqOptions(correctAnswer){
+  const maxVal = COMPETITIONS[activeComp].operands * 9;
+  const opts = new Set([correctAnswer]);
+  while(opts.size < 10) opts.add(randInt(0, maxVal));
+  return shuffleArr([...opts]);
+}
+function renderMcqGrid(q){
+  const grid = document.getElementById('mcqGrid');
+  grid.innerHTML = buildMcqOptions(q.answer).map(o => `<button class="key-btn" onclick="answerMcq(${o})">${toArabicDigits(o)}</button>`).join('');
+}
+function answerMcq(val){
+  if(answered) return;
+  answered = true;
+  const q = questions[currentIndex];
+  const correct = val === q.answer;
+  document.querySelectorAll('#mcqGrid .key-btn').forEach(b => {
+    b.disabled = true;
+    const bv = parseInt(toEnglish(b.textContent), 10);
+    if(bv === q.answer) b.classList.add('correct');
+    else if(bv === val && !correct) b.classList.add('wrong');
+  });
+  showFeedback(correct, q.answer);
+}
+function toEnglish(str){
+  const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+  return str.replace(/[٠-٩]/g, d => map[d]);
+}
+
+function showFeedback(correct, correctAnswer){
+  const fb = document.getElementById('feedback');
+  if(correct){
+    correctCount++;
+    fb.textContent = '✅ إجابة صحيحة!'; fb.className = 'feedback-flash ok';
+  } else {
+    fb.textContent = `❌ غير صحيحة — الناتج الصحيح: ${toArabicDigits(correctAnswer)}`; fb.className = 'feedback-flash bad';
+  }
+  setTimeout(() => {
+    currentIndex++;
+    if(currentIndex >= questionCount) finishGame(); else renderQuestion();
+  }, 1300);
+}
+
+/* ---------------- تدفق اللعبة ---------------- */
+function startGame(n){
+  questionCount = n;
+  questions = buildQuestions(n);
+  currentIndex = 0; correctCount = 0; elapsedSeconds = 0;
+
+  let modeTagText = selectedMode === 'mcq' ? '🔟 إجابات جاهزة' : '⌨️ اكتب الإجابة بنفسك';
+  if(COMPETITIONS[activeComp].needsFormat){
+    modeTagText += activeFormat === 'vertical' ? ' — عمودي' : ' — أفقي';
+  }
+  document.getElementById('modeTag').textContent = modeTagText;
+  document.getElementById('typedBlock').classList.toggle('hidden', selectedMode !== 'typed');
+  document.getElementById('mcqBlock').classList.toggle('hidden', selectedMode !== 'mcq');
+  if(selectedMode === 'typed') buildKeypad();
+
+  showScreen('screen-game');
+  startTime = Date.now();
+  clearInterval(timerInterval);
+  const ring = document.getElementById('clockProgress');
+  if(ring) ring.style.strokeDashoffset = '326.7';
+  document.getElementById('stopwatch').textContent = '٠٠:٠٠';
+  timerInterval = setInterval(updateStopwatch, 500);
+  renderQuestion();
+}
+
+function updateStopwatch(){
+  elapsedSeconds = (Date.now() - startTime) / 1000;
+  document.getElementById('stopwatch').textContent = fmtTime(elapsedSeconds);
+  const circumference = 326.7;
+  const cycleProgress = (elapsedSeconds % 60) / 60;
+  const ring = document.getElementById('clockProgress');
+  if(ring) ring.style.strokeDashoffset = circumference * (1 - cycleProgress);
+}
+
+function renderQuestion(){
+  answered = false; currentInput = '';
+  const q = questions[currentIndex];
+  document.getElementById('qProgress').textContent = `${toArabicDigits(currentIndex+1)} / ${toArabicDigits(questionCount)}`;
+  document.getElementById('scoreLive').textContent = toArabicDigits(correctCount);
+  document.getElementById('progressFill').style.width = `${(currentIndex/questionCount)*100}%`;
+  renderEquation(q);
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback-flash';
+
+  if(selectedMode === 'typed'){
+    renderAnswerBox();
+    document.querySelectorAll('#keypad .key-btn').forEach(b => b.disabled = false);
+  } else {
+    renderMcqGrid(q);
+  }
+}
+
+const ENCOURAGE_MSGS = [
+  'أداء رائع! أنت تحسب بسرعة وثقة 🌟',
+  'ممتاز! عقلك يعمل بسرعة في عمليات الجمع ⚡',
+  'إنجاز يستحق التصفيق! واصل على هذا المستوى الرائع 👏',
+  'ما شاء الله! أنت بطل حقيقي في مادة الرياضيات 🏅'
+];
+
+function finishGame(){
+  clearInterval(timerInterval);
+  document.getElementById('progressFill').style.width = '100%';
+  const pct = correctCount / questionCount;
+  const emoji = pct >= 0.9 ? '🏆' : pct >= 0.7 ? '🌟' : pct >= 0.5 ? '👍' : '💪';
+  const title = pct >= 0.9 ? 'ممتاز جدًا!' : pct >= 0.7 ? 'أحسنت!' : pct >= 0.5 ? 'عمل جيد!' : 'واصل التدريب!';
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${toArabicDigits(correctCount)} / ${toArabicDigits(questionCount)}`;
+  document.getElementById('resultTime').textContent = `الزمن: ${fmtTime(elapsedSeconds)}`;
+
+  const encourageEl = document.getElementById('encourageMsg');
+  if(pct >= 0.8){
+    encourageEl.textContent = '🎉 ' + ENCOURAGE_MSGS[randInt(0, ENCOURAGE_MSGS.length - 1)];
+    encourageEl.classList.remove('hidden');
+  } else encourageEl.classList.add('hidden');
+
+  const statusEl = document.getElementById('sendStatus');
+  if(isOfficial){
+    statusEl.textContent = 'جارٍ إرسال نتيجتك...'; statusEl.className = 'wait';
+    submitResult();
+  } else statusEl.textContent = '';
+  showScreen('screen-result');
+}
+
+async function submitResult(){
+  const statusEl = document.getElementById('sendStatus');
+  if(!supabase){
+    statusEl.textContent = 'تعذّر الإرسال: قاعدة البيانات غير مهيأة.'; statusEl.className = 'bad'; return;
+  }
+  try{
+    const { error: upsertErr } = await supabase.from('students').upsert(
+      { national_id: studentId, name: studentName }, { onConflict: 'national_id' }
+    );
+    if(upsertErr) throw upsertErr;
+
+    const { error: insertErr } = await supabase.from('competition_results').insert({
+      national_id: studentId,
+      student_name: studentName,
+      category: questionCount,
+      correct_count: correctCount,
+      total_questions: questionCount,
+      time_seconds: Math.round(elapsedSeconds * 10) / 10,
+      lesson: LESSON_TAG,
+      mode: selectedMode
+    });
+    if(insertErr) throw insertErr;
+
+    statusEl.textContent = 'تم إرسال نتيجتك بنجاح ✅'; statusEl.className = 'ok';
+    loadChampion(); loadHomeLeaderboard(); loadClassCompare();
+  }catch(e){
+    console.error(e);
+    const detail = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : 'سبب غير معروف';
+    statusEl.textContent = 'تعذّر الإرسال: ' + detail; statusEl.className = 'bad';
+  }
+}
+
+/* ---------------- لوحة المتميزين (عامة، بدون رقم سري) ---------------- */
+async function loadHomeLeaderboard(){
+  const table = document.getElementById('homeLeadTable');
+  if(!supabase){
+    table.innerHTML = '<tbody><tr><td>لوحة النتائج تحتاج إلى ربط قاعدة بيانات أولًا.</td></tr></tbody>';
+    return;
+  }
+  try{
+    const { data, error } = await supabase
+      .from('competition_results')
+      .select('*')
+      .eq('lesson', LESSON_TAG);
+    if(error) throw error;
+    const rows = (data || [])
+      .sort((a,b) => (b.correct_count/b.total_questions - a.correct_count/a.total_questions) || (a.time_seconds - b.time_seconds))
+      .slice(0,5);
+    if(rows.length === 0){
+      table.innerHTML = '<tbody><tr><td>لا توجد نتائج بعد. كن أول المشاركين! 🚀</td></tr></tbody>';
+      return;
+    }
+    const rankClass = i => i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : '';
+    const modeLabel = m => m === 'mcq' ? '<span class="mode-badge mcq">١٠ خيارات</span>' : '<span class="mode-badge typed">اكتب بنفسك</span>';
+    table.innerHTML = `
+      <thead><tr><th>الترتيب</th><th>الاسم</th><th>النتيجة</th><th>الوقت</th><th>نوع المسابقة</th></tr></thead>
+      <tbody>
+        ${rows.map((r,i) => `<tr>
+          <td class="${rankClass(i)}">${toArabicDigits(i+1)}</td>
+          <td>${r.student_name}</td>
+          <td>${toArabicDigits(r.correct_count)} / ${toArabicDigits(r.total_questions)}</td>
+          <td>⏱️ ${fmtTime(r.time_seconds)}</td>
+          <td>${modeLabel(r.mode || 'typed')}</td>
+        </tr>`).join('')}
+      </tbody>`;
+  }catch(e){
+    console.error(e);
+    table.innerHTML = '<tbody><tr><td>تعذّر تحميل النتائج.</td></tr></tbody>';
+  }
+}
+
+/* ---------------- بطل التحدي (أعلى نتيجة على الإطلاق، يظهر فورًا للجميع) ---------------- */
+async function loadChampion(){
+  const card = document.getElementById('championCard');
+  if(!supabase) return;
+  try{
+    const { data, error } = await supabase
+      .from('competition_results')
+      .select('*')
+      .eq('lesson', LESSON_TAG);
+    if(error) throw error;
+    if(!data || data.length === 0){ card.classList.add('hidden'); return; }
+    const best = [...data].sort((a,b) =>
+      (b.correct_count/b.total_questions - a.correct_count/a.total_questions) || (a.time_seconds - b.time_seconds)
+    )[0];
+    const sec = sectionOf(best.student_name) || '';
+    const modeLbl = best.mode === 'mcq' ? 'إجابات جاهزة' : 'اكتب بنفسك';
+    document.getElementById('championName').textContent = `${best.student_name}${sec ? ' — ' + sec : ''}`;
+    document.getElementById('championMeta').textContent =
+      `${toArabicDigits(best.correct_count)}/${toArabicDigits(best.total_questions)} صحيحة ⏱️ ${fmtTime(best.time_seconds)} — مستوى ${toArabicDigits(best.category)} أسئلة (${modeLbl})`;
+    card.classList.remove('hidden');
+  }catch(e){
+    console.error(e);
+    card.classList.add('hidden');
+  }
+}
+
+/* ---------------- منافسة الفصلين (عامة، بدون رقم سري) ---------------- */
+async function loadClassCompare(){
+  const row = document.getElementById('classCompareRow');
+  if(!supabase){
+    row.innerHTML = '<p class="desc">تحتاج إلى ربط قاعدة بيانات أولًا.</p>';
+    return;
+  }
+  try{
+    const { data, error } = await supabase
+      .from('competition_results')
+      .select('*')
+      .eq('lesson', LESSON_TAG);
+    if(error) throw error;
+
+    const bySection = { 'الفصل الأول': [], 'الفصل الثاني': [] };
+    (data || []).forEach(r => {
+      const sec = sectionOf(r.student_name);
+      if(sec) bySection[sec].push(r);
+    });
+    const sections = ['الفصل الأول','الفصل الثاني']; // الأول = يمين دائمًا، الثاني = يسار دائمًا
+    const bestOf = list => {
+      if(!list.length) return null;
+      return [...list].sort((a,b) => (b.correct_count/b.total_questions - a.correct_count/a.total_questions) || (a.time_seconds - b.time_seconds))[0];
+    };
+    const stats = sections.map(name => {
+      const list = bySection[name];
+      const avgAcc = list.length ? list.reduce((s,r) => s + r.correct_count/r.total_questions, 0) / list.length : 0;
+      const avgTime = list.length ? list.reduce((s,r) => s + r.time_seconds, 0) / list.length : 0;
+      return { name, avgAcc, avgTime, count: list.length, best: bestOf(list) };
+    });
+
+    if(stats[0].count === 0 && stats[1].count === 0){
+      row.innerHTML = '<p class="desc">لا توجد نتائج كافية بعد للمقارنة بين الفصلين.</p>';
+      return;
+    }
+    const winnerIdx = (stats[0].avgAcc !== stats[1].avgAcc)
+      ? (stats[0].avgAcc > stats[1].avgAcc ? 0 : 1)
+      : (stats[0].avgTime <= stats[1].avgTime ? 0 : 1);
+
+    row.innerHTML = stats.map((s,i) => {
+      const isWinner = i === winnerIdx;
+      const bestLine = s.best
+        ? `<div class="class-best">🥇 الأفضل: <b>${s.best.student_name}</b> — ${toArabicDigits(s.best.correct_count)}/${toArabicDigits(s.best.total_questions)} — ⏱️ ${fmtTime(s.best.time_seconds)} — مستوى ${toArabicDigits(s.best.category)} أسئلة</div>`
+        : '';
+      return `
+      <div class="class-card">
+        <div class="class-banner ${isWinner ? 'win' : 'lose'}">${isWinner ? '🏆 الصف المتميز' : '⚠️ الصف الأقل تميزًا'}</div>
+        <div class="class-body">
+          <div class="class-name">${s.name}</div>
+          <div class="class-stats">
+            <div><span class="lbl">متوسط الدقة:</span> <b>${toArabicDigits(Math.round(s.avgAcc*100))}%</b></div>
+            <div><span class="lbl">متوسط الوقت:</span> <b>⏱️ ${fmtTime(s.avgTime)}</b></div>
+            <div><span class="lbl">عدد المشاركين:</span> <b>${toArabicDigits(s.count)}</b></div>
+          </div>
+          ${bestLine}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    console.error(e);
+    row.innerHTML = '<p class="desc">تعذّر تحميل بيانات المقارنة.</p>';
+  }
+}
+
+/* ---------------- لوحة المعلم ---------------- */
+function loadPin(){ try{ return localStorage.getItem(PIN_KEY) || TEACHER_PIN_DEFAULT; }catch(e){ return TEACHER_PIN_DEFAULT; } }
+function openTeacherGate(){
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinErr').style.display = 'none';
+  showScreen('screen-pin');
+}
+function checkPin(){
+  const val = document.getElementById('pinInput').value.trim();
+  if(val === loadPin()){ showScreen('screen-dashboard'); loadDashboard(); }
+  else document.getElementById('pinErr').style.display = 'block';
+}
+function savePin(newPin){ try{ localStorage.setItem(PIN_KEY, newPin); return true; }catch(e){ return false; } }
+function openChangePin(){
+  document.getElementById('oldPinInput').value = '';
+  document.getElementById('newPinInput').value = '';
+  document.getElementById('newPinInput2').value = '';
+  document.getElementById('changePinErr').style.display = 'none';
+  document.getElementById('changePinSuccess').style.display = 'none';
+  showScreen('screen-change-pin');
+}
+function saveNewPin(){
+  const oldPin = document.getElementById('oldPinInput').value.trim();
+  const newPin = document.getElementById('newPinInput').value.trim();
+  const newPin2 = document.getElementById('newPinInput2').value.trim();
+  const err = document.getElementById('changePinErr');
+  const success = document.getElementById('changePinSuccess');
+  success.style.display = 'none';
+  const valid = oldPin === loadPin() && /^\d{8}$/.test(newPin) && newPin === newPin2;
+  if(!valid){ err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  if(savePin(newPin)){
+    success.style.display = 'block';
+    document.getElementById('oldPinInput').value = '';
+    document.getElementById('newPinInput').value = '';
+    document.getElementById('newPinInput2').value = '';
+  } else { err.textContent = 'تعذّر حفظ الرقم الجديد على هذا الجهاز.'; err.style.display = 'block'; }
+}
+
+const CATEGORIES = [5,10,15];
+const MODES = [{v:'all', l:'الكل'}, {v:'mcq', l:'١٠ خيارات'}, {v:'typed', l:'اكتب بنفسك'}];
+let dashRows = [];
+let activeCategory = 5;
+let activeMode = 'all';
+
+async function loadDashboard(){
+  const content = document.getElementById('dashContent');
+  if(!supabase){
+    content.innerHTML = '<p class="desc">لوحة النتائج تحتاج إلى ربط قاعدة بيانات Supabase أولًا.</p>';
+    return;
+  }
+  content.innerHTML = '<p class="desc">جارٍ تحميل النتائج...</p>';
+  try{
+    const { data, error } = await supabase
+      .from('competition_results')
+      .select('*')
+      .eq('lesson', LESSON_TAG)
+      .order('time_seconds', { ascending: true });
+    if(error) throw error;
+    dashRows = data || [];
+    buildDashTabs();
+    renderLeaderboard();
+  }catch(e){
+    console.error(e);
+    content.innerHTML = '<p class="desc">تعذّر تحميل النتائج. تحقق من الاتصال وإعدادات Supabase.</p>';
+  }
+}
+function buildDashTabs(){
+  document.getElementById('dashCatTabs').innerHTML = CATEGORIES.map(c =>
+    `<button class="dash-tab ${c===activeCategory?'active':''}" onclick="switchCatTab(${c})">فئة ${toArabicDigits(c)} أسئلة</button>`
+  ).join('');
+  document.getElementById('dashModeTabs').innerHTML = MODES.map(m =>
+    `<button class="dash-tab ${m.v===activeMode?'active':''}" onclick="switchModeTab('${m.v}')">${m.l}</button>`
+  ).join('');
+}
+function switchCatTab(c){ activeCategory = c; buildDashTabs(); renderLeaderboard(); hideExportPreview(); }
+function switchModeTab(m){ activeMode = m; buildDashTabs(); renderLeaderboard(); hideExportPreview(); }
+function hideExportPreview(){
+  document.getElementById('cardPreviewWrap').classList.add('hidden');
+  document.getElementById('exportActionsBar').classList.add('hidden');
+}
+function currentFilteredRows(){
+  return dashRows
+    .filter(r => r.category === activeCategory && (activeMode === 'all' || (r.mode || 'typed') === activeMode))
+    .sort((a,b) => (b.correct_count - a.correct_count) || (a.time_seconds - b.time_seconds));
+}
+
+function renderLeaderboard(){
+  const rows = currentFilteredRows();
+  const content = document.getElementById('dashContent');
+  if(rows.length === 0){ content.innerHTML = '<p class="desc">لا توجد نتائج بعد في هذه الفئة.</p>'; return; }
+  const rankClass = i => i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : '';
+  const modeLabel = m => m === 'mcq' ? '<span class="mode-badge mcq">١٠ خيارات</span>' : '<span class="mode-badge typed">اكتب بنفسك</span>';
+  content.innerHTML = `
+    <table class="lead">
+      <thead><tr><th>الترتيب</th><th>الاسم</th><th>الصحيح</th><th>الزمن</th><th>النوع</th><th></th></tr></thead>
+      <tbody>
+        ${rows.map((r,i) => `<tr>
+          <td class="${rankClass(i)}">${toArabicDigits(i+1)}</td>
+          <td>${r.student_name}</td>
+          <td>${toArabicDigits(r.correct_count)} / ${toArabicDigits(r.total_questions)}</td>
+          <td>${fmtTime(r.time_seconds)}</td>
+          <td>${modeLabel(r.mode || 'typed')}</td>
+          <td><button class="del-btn" onclick="deleteResult('${r.id}')" title="حذف">🗑️</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function deleteResult(id){
+  if(!supabase) return;
+  const ok = window.confirm('هل تريد حذف هذه النتيجة نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.');
+  if(!ok) return;
+  try{
+    const { error } = await supabase.from('competition_results').delete().eq('id', id);
+    if(error) throw error;
+    await loadDashboard();
+  }catch(e){
+    console.error(e);
+    alert('تعذّر حذف النتيجة: ' + (e.message || 'سبب غير معروف'));
+  }
+}
+
+/* ---------------- تصدير بطاقة نتائج ---------------- */
+function buildCardHTML(rows, catLabel){
+  const now = new Date();
+  const dateStr = toArabicDigits(now.toLocaleDateString('ar-SA'));
+  const rankClass = i => i===0 ? 'gold' : i===1 ? 'silver' : i===2 ? 'bronze' : '';
+  const rankIcon = i => i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : '';
+  const rowsHTML = rows.map((r,i) => `<tr>
+    <td class="ec-rank ${rankClass(i)}">${rankIcon(i)} ${toArabicDigits(i+1)}</td>
+    <td class="ec-name">${r.student_name}</td>
+    <td>${toArabicDigits(r.correct_count)} / ${toArabicDigits(r.total_questions)}</td>
+    <td>${fmtTime(r.time_seconds)}</td>
+  </tr>`).join('');
+  return `
+    <div class="ec-head">
+      <div class="ec-school">🏫 ابتدائية هشام بن عبدالملك — مادة الرياضيات</div>
+      <div class="ec-sub">نتائج مسابقة الجمع — الصف الثاني الابتدائي</div>
+      <div class="ec-badge">${catLabel}</div>
+    </div>
+    <table>
+      <thead><tr><th>الترتيب</th><th>اسم الطالب</th><th>الصحيح</th><th>الزمن</th></tr></thead>
+      <tbody>${rowsHTML || `<tr><td colspan="4">لا توجد نتائج</td></tr>`}</tbody>
+    </table>
+    <div class="ec-foot">الأستاذ محمد مشعل العنزي — معلم مادة الرياضيات — الصف الثاني &nbsp;|&nbsp; ${dateStr}</div>
+  `;
+}
+function currentCardSelection(){
+  const rows = currentFilteredRows();
+  const countSel = document.getElementById('exportCountSelect').value;
+  const n = countSel === 'all' ? rows.length : parseInt(countSel);
+  const sliced = rows.slice(0, n);
+  const modeLbl = MODES.find(m => m.v === activeMode).l;
+  const countLabel = `فئة ${toArabicDigits(activeCategory)} أسئلة — ${modeLbl}${countSel === 'all' ? '' : ' — أفضل ' + toArabicDigits(n)}`;
+  return { sliced, countLabel };
+}
+function renderExportPreview(){
+  const { sliced, countLabel } = currentCardSelection();
+  const html = buildCardHTML(sliced, countLabel);
+  document.getElementById('exportCard').innerHTML = html;
+  const previewWrap = document.getElementById('cardPreviewWrap');
+  previewWrap.innerHTML = `<div class="export-card">${html}</div>`;
+  previewWrap.classList.remove('hidden');
+  document.getElementById('exportActionsBar').classList.remove('hidden');
+}
+async function downloadCardImage(){
+  const { sliced, countLabel } = currentCardSelection();
+  const exportCard = document.getElementById('exportCard');
+  exportCard.innerHTML = buildCardHTML(sliced, countLabel);
+  const canvas = await html2canvas(exportCard, {
+    scale: 2, backgroundColor: '#ffffff', windowWidth: 950,
+    width: exportCard.scrollWidth, height: exportCard.scrollHeight, scrollX: 0, scrollY: 0
+  });
+  const link = document.createElement('a');
+  link.download = `نتائج-مسابقة-الجمع-${activeCategory}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+function printExportCard(){
+  const { sliced, countLabel } = currentCardSelection();
+  const cardHTML = buildCardHTML(sliced, countLabel);
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+    <title>نتائج المسابقة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+      body{font-family:'Cairo',sans-serif; direction:rtl; margin:0; padding:24px;}
+      .export-card{width:100%; max-width:800px; margin:0 auto; border:4px solid #0f8b8d; padding:28px; box-sizing:border-box;}
+      .ec-head{text-align:center; border-bottom:3px solid #0f8b8d; padding-bottom:14px; margin-bottom:16px;}
+      .ec-school{font-family:'Tajawal',sans-serif; font-weight:800; font-size:1.4rem; color:#0b6567;}
+      .ec-sub{font-size:.95rem; color:#557; margin-top:6px;}
+      .ec-badge{display:inline-block; margin-top:8px; background:#f2b705; color:#4a3400; padding:5px 18px; border-radius:30px; font-weight:800; font-size:1rem;}
+      table{width:100%; border-collapse:collapse; margin-top:8px;}
+      th, td{padding:10px 8px; text-align:center; font-size:.95rem; border-bottom:1px solid #e3f0f0; font-family:'Tajawal',sans-serif;}
+      th{background:#0f8b8d; color:#fff; font-family:'Cairo',sans-serif;}
+      .ec-name{font-weight:700; text-align:right;}
+      .ec-foot{margin-top:18px; text-align:center; font-size:.85rem; color:#789; border-top:1px dashed #cde; padding-top:12px;}
+      @page{ size:A4 portrait; margin:14mm; }
+    </style></head>
+    <body>
+      <div class="export-card">${cardHTML}</div>
+      <script>window.onload = () => { window.print(); }<\/script>
+    </body></html>
+  `);
+  win.document.close();
+}
+
+/* تهيئة أولية */
+loadChampion();
+loadHomeLeaderboard();
+loadClassCompare();
+
+window.showScreen = showScreen;
+window.goHome = goHome;
+window.startOfficial = startOfficial;
+window.submitRegistration = submitRegistration;
+window.startFree = startFree;
+window.chooseMode = chooseMode;
+window.startGame = startGame;
+window.pressDigit = pressDigit;
+window.clearAnswer = clearAnswer;
+window.submitAnswer = submitAnswer;
+window.answerMcq = answerMcq;
+window.openTeacherGate = openTeacherGate;
+window.checkPin = checkPin;
+window.openChangePin = openChangePin;
+window.saveNewPin = saveNewPin;
+window.loadDashboard = loadDashboard;
+window.switchCatTab = switchCatTab;
+window.switchModeTab = switchModeTab;
+window.deleteResult = deleteResult;
+window.renderExportPreview = renderExportPreview;
+window.downloadCardImage = downloadCardImage;
+window.printExportCard = printExportCard;
+
+})();
+</script>
+</body>
+</html>
