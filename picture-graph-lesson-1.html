@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التمثيل بالصور ٤-٢</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f8ec; --card:#ffffff; --ink:#1f2a44; --muted:#5b6478;
+  --green:#6aa832; --green-d:#4c8a1c; --blue:#1f5fbf; --blue-l:#dbe8fb;
+  --red:#c8382f; --yellow:#ffe14d; --orange:#f39a1e; --line:#d8e2c8;
+  --ok:#2e9b4f; --bad:#d64541;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Tajawal",Tahoma,Arial,sans-serif;font-size:19px;line-height:1.7}
+button{font-family:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(90deg,var(--blue),#2f7be0);color:#fff;padding:10px 16px;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.title{font-size:24px;font-weight:800;margin:0}
+.title small{font-size:15px;font-weight:500;opacity:.9;display:block;line-height:1.2}
+.timer{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:14px}
+.timer .t{font-size:26px;font-weight:800;min-width:72px;text-align:center;direction:ltr}
+.timer button{background:#fff;color:var(--blue);border:0;border-radius:10px;padding:4px 12px;font-weight:700;font-size:16px}
+.timer.done{background:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+nav{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+nav button{flex:1;min-width:110px;border:0;border-radius:12px;padding:8px 6px;background:rgba(255,255,255,.18);color:#fff;font-weight:700;font-size:16px;white-space:nowrap}
+nav button.on{background:var(--yellow);color:var(--ink)}
+main{max-width:1000px;margin:0 auto;padding:18px 16px 60px}
+section.stage{display:none}
+section.stage.on{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+h2{font-size:28px;margin:4px 0 14px;color:var(--green-d)}
+h3{font-size:21px;margin:0 0 10px;color:var(--blue)}
+.card{background:var(--card);border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(40,60,20,.08);border:2px solid var(--line)}
+.idea{background:linear-gradient(135deg,#eaf6d8,#fff8c9)}
+.hl{background:var(--yellow);padding:0 6px;border-radius:6px;font-weight:700}
+.btn{border:0;border-radius:14px;padding:10px 18px;font-size:19px;font-weight:700;background:var(--blue);color:#fff;transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.btn.g{background:var(--green)} .btn.o{background:var(--orange)} .btn.r{background:var(--red)} .btn.l{background:var(--blue-l);color:var(--blue)}
+.btn.sel{outline:4px solid var(--yellow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.center{justify-content:center}
+.big{font-size:44px;font-weight:800;color:var(--blue)}
+.reveal{display:none;margin-top:10px;padding:10px 14px;border-radius:14px;background:#eaf6d8;font-weight:700}
+.reveal.on{display:block;animation:fade .3s}
+table{border-collapse:collapse}
+th,td{border:2px solid var(--ink);padding:6px 8px;text-align:center;vertical-align:middle}
+th{background:var(--blue-l);font-size:18px}
+.tt{width:100%}
+.tt td:first-child{white-space:nowrap;font-weight:700}
+td.tl{min-width:120px;height:52px}
+.tally{display:inline-block;vertical-align:middle}
+.tally line{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.tally .slash{stroke:var(--red)}
+.mini{border:0;border-radius:10px;width:40px;height:40px;font-size:24px;font-weight:800;background:var(--green);color:#fff;line-height:1}
+.mini.m{background:#aab3c5}
+.msg{min-height:34px;font-weight:700;color:var(--red);text-align:center}
+.opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.opt{border:3px solid var(--blue-l);background:#fff;border-radius:16px;padding:8px 20px;font-size:24px;font-weight:800;color:var(--ink);min-width:70px}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.no{background:var(--bad);border-color:var(--bad);color:#fff;animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.two{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;align-items:start}
+@media(max-width:780px){.two{grid-template-columns:1fr}}
+/* التمثيل بالصور */
+.pgwrap{border:3px solid var(--blue);border-radius:16px;padding:10px;background:#eef5ff;max-width:100%;overflow-x:auto}
+.pgtitle{text-align:center;font-weight:800;font-size:20px;margin-bottom:4px}
+.pg{margin:0 auto}
+.pg td{width:50px;height:50px;padding:0;font-size:30px;background:#fff}
+.pg td.cell{cursor:pointer}
+.pg td.cell:hover{background:#f3f8ff}
+.pg.static td.cell{cursor:default}
+.pg td.lab{width:auto;min-width:130px;font-size:18px;font-weight:700;padding:0 8px;white-space:nowrap}
+.pop{animation:pop .25s}
+@keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+.key{border:2px solid var(--ink);background:#fff;border-radius:8px;padding:4px 12px;margin:8px auto 0;display:table;font-weight:700}
+.kp{display:inline-flex;flex-direction:column;align-items:center;font-size:42px;margin:0 4px;line-height:1.2}
+.kp small{font-size:20px;color:var(--blue);font-weight:800}
+.shoes{min-height:70px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.quizbox{text-align:center}
+.quizbox .q{font-size:24px;font-weight:700;margin-bottom:6px}
+.qv{font-size:40px;min-height:70px}
+.qv .ql{font-size:20px;font-weight:700}
+.stars{font-size:30px;letter-spacing:4px}
+.progress{height:12px;background:#e6ebf2;border-radius:8px;overflow:hidden;margin:8px 0 14px}
+.progress div{height:100%;background:var(--green);transition:width .3s}
+.item{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)}
+.num{background:var(--blue);color:#fff;border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.inp{font-family:inherit;font-size:22px;width:70px;text-align:center;border:2px solid var(--line);border-radius:10px;padding:2px}
+.good{border-color:var(--ok)!important;background:#e5f6ea!important}
+.wrong{border-color:var(--bad)!important;background:#fde8e7!important}
+.result{font-size:24px;font-weight:800;text-align:center;margin-top:12px}
+.name{font-family:inherit;font-size:20px;border:0;border-bottom:2px dotted var(--muted);background:transparent;width:220px;padding:2px 6px}
+.foot{font-size:15px;color:var(--muted);text-align:center;margin-top:20px}
+@media (max-width:600px){body{font-size:17px}.title{font-size:19px}h2{font-size:23px}.big{font-size:36px}.pg td{width:40px;height:40px;font-size:24px}.pg td.lab{min-width:100px;font-size:15px}.kp{font-size:32px}}
+@media print{
+  header,.noprint,nav{display:none!important}
+  section.stage{display:none!important}
+  #s4{display:block!important}
+  body{background:#fff;font-size:15px}
+  .card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1 class="title">التَّمْثِيلُ بِالصُّوَرِ (٤-٢)<small>رياضيات — الصف الثاني الابتدائي · ص ٨٦–٨٧</small></h1>
+    <div class="timer" id="timer">
+      <span class="t" id="tval">٣:٠٠</span>
+      <button id="tbtn">ابدأ</button>
+      <button id="treset" title="إعادة">↺</button>
+    </div>
+  </div>
+  <nav id="nav">
+    <button data-s="1" class="on">١ التهيئة · ٣ د</button>
+    <button data-s="2">٢ الدرس · ١٠ د</button>
+    <button data-s="3">٣ المراجعة · ٤ د</button>
+    <button data-s="4">٤ ورقة العمل · ٣ د</button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ ١ التهيئة ============ -->
+<section class="stage on" id="s1">
+  <h2>التَّهْيِئَةُ</h2>
+  <div class="card">
+    <h3>🔁 تَذَكَّرْ: كَمْ تُمَثِّلُ الإِشَارَاتُ؟</h3>
+    <div id="wu"></div>
+  </div>
+  <div class="card">
+    <h3>👟 نَعُدُّ بِالِاثْنَيْنِ</h3>
+    <p>كُلُّ صُورَةِ حِذَاءٍ تُمَثِّلُ <b>فَرْدَتَيْنِ</b> (زَوْجًا). اضْغَطْ وَعُدَّ مَعَ زُمَلَائِكَ:</p>
+    <div class="shoes" id="shoes"></div>
+    <div class="row center">
+      <span class="big" id="shoeCount">٠</span>
+      <button class="btn g" id="addShoe">أَضِفْ زَوْجًا 👟</button>
+      <button class="btn l" id="resetShoe">مَسْح</button>
+    </div>
+    <p style="margin-top:12px"><b>سُؤَالٌ:</b> إِذَا كَانَتْ كُلُّ صُورَةٍ تُمَثِّلُ <b>اثْنَيْنِ</b>، فَكَمْ تُمَثِّلُ ٣ صُوَرٍ؟</p>
+    <button class="btn o" data-reveal="r1">أَظْهِرِ الإِجَابَةَ</button>
+    <div class="reveal" id="r1">٢، ٤، ٦ ← تُمَثِّلُ <b>٦</b>. الْيَوْمَ نَتَعَلَّمُ <span class="hl">التَّمْثِيلَ بِالصُّوَرِ</span> وَ<span class="hl">الْمِفْتَاحَ</span> 🎉</div>
+  </div>
+</section>
+
+<!-- ============ ٢ الدرس ============ -->
+<section class="stage" id="s2">
+  <h2>الدَّرْسُ</h2>
+  <div class="card idea">
+    <h3>💡 فِكْرَةُ الدَّرْسِ</h3>
+    <p>أُمَثِّلُ الْبَيَانَاتِ <span class="hl">بِالصُّوَرِ</span> مِنْ جَدْوَلِ الإِشَارَاتِ، وَأَسْتَعْمِلُ <span class="hl">الْمِفْتَاحَ</span> لِأُبَيِّنَ عَدَدَ الِاسْتِجَابَاتِ الَّتِي تُمَثِّلُهَا كُلُّ صُورَةٍ.</p>
+    <p><b>الْمُفْرَدَاتُ:</b> التَّمْثِيلُ بِالصُّوَرِ · الْمِفْتَاحُ</p>
+  </div>
+
+  <div class="card">
+    <h3>🕊️ مِثَالُ الْكِتَابِ: جَمَعَتْ سَلْمَى بَيَانَاتٍ حَوْلَ الطَّائِرِ الْمُفَضَّلِ</h3>
+    <div class="two">
+      <div id="salmaT"></div>
+      <div id="salmaG"></div>
+    </div>
+    <div class="row center" style="margin-top:10px">
+      <button class="btn g" id="salmaGo">مَثِّلْ بِالصُّوَرِ ⬅</button>
+    </div>
+    <p style="margin-top:10px"><b>أَيُّ طَائِرٍ يُفَضِّلُهُ عَدَدٌ أَكْبَرُ؟</b></p>
+    <div class="opts" data-q="salma">
+      <button class="opt" data-a="0">🕊️ الْحَمَامَةُ</button>
+      <button class="opt" data-a="1">🐤 الْعُصْفُورُ</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔑 مُخْتَبَرُ الْمِفْتَاحِ: مَاذَا لَوْ مَثَّلَتِ الصُّورَةُ اسْتِجَابَتَيْنِ؟</h3>
+    <div class="row center">
+      <span>عَدَدُ الِاسْتِجَابَاتِ:</span>
+      <button class="mini m" id="kSub">−</button>
+      <span class="big" id="kNum">٦</span>
+      <button class="mini" id="kAdd">+</button>
+      <span id="kTally"></span>
+    </div>
+    <div class="row center" style="margin-top:8px">
+      <span>الْمِفْتَاحُ: كُلُّ 🐟 =</span>
+      <button class="btn l" data-k="1">١</button>
+      <button class="btn l" data-k="2">٢</button>
+    </div>
+    <div class="row center" id="kPics" style="margin-top:12px;min-height:90px"></div>
+    <div class="msg" id="kMsg" style="color:var(--blue)"></div>
+  </div>
+
+  <div class="card">
+    <h3>✅ أَتَأَكَّدُ: الْحَيَوَانُ الْمُفَضَّلُ</h3>
+    <p>أَسْتَعْمِلُ جَدْوَلَ الإِشَارَاتِ لِأُمَثِّلَ الْبَيَانَاتِ بِالصُّوَرِ. اضْغَطْ عَلَى الْمُرَبَّعَاتِ لِتَرْسُمَ الصُّوَرَ (عُدَّ بِالِاثْنَيْنِ).</p>
+    <div class="two">
+      <div id="animT"></div>
+      <div id="animG"></div>
+    </div>
+    <div class="row center" style="margin-top:10px">
+      <button class="btn g" id="animCheck">تَحَقَّقْ ✔</button>
+      <button class="btn o" id="animShow">الْحَلُّ</button>
+      <button class="btn l" id="animClr">مَسْح</button>
+    </div>
+    <div class="msg" id="animMsg"></div>
+  </div>
+
+  <div class="card">
+    <h3>💬 أَتَحَدَّثُ</h3>
+    <p>كَيْفَ أُفَرِّقُ بَيْنَ التَّمْثِيلِ بِالصُّوَرِ وَجَدْوَلِ الإِشَارَاتِ؟</p>
+    <button class="btn o" data-reveal="r2">أَظْهِرِ الإِجَابَةَ</button>
+    <div class="reveal" id="r2">جَدْوَلُ الإِشَارَاتِ يَسْتَعْمِلُ <b>خُطُوطًا</b> لِلْعَدِّ، وَالتَّمْثِيلُ بِالصُّوَرِ يَسْتَعْمِلُ <b>صُوَرًا</b> وَ<b>مِفْتَاحًا</b> يُبَيِّنُ كَمْ تُمَثِّلُ كُلُّ صُورَةٍ، فَأَرَى الأَكْثَرَ وَالأَقَلَّ بِنَظْرَةٍ وَاحِدَةٍ.</div>
+  </div>
+</section>
+
+<!-- ============ ٣ المراجعة ============ -->
+<section class="stage" id="s3">
+  <h2>الْمُرَاجَعَةُ</h2>
+  <div class="card quizbox">
+    <div class="progress"><div id="qBar" style="width:0"></div></div>
+    <div class="q" id="qText"></div>
+    <div class="qv" id="qVis"></div>
+    <div class="opts" id="qOpts"></div>
+    <div class="msg" id="qMsg" style="margin-top:8px"></div>
+    <button class="btn" id="qNext" style="display:none">السُّؤَالُ التَّالِي ⬅</button>
+    <div id="qEnd" style="display:none">
+      <div class="stars" id="qStars"></div>
+      <div class="result" id="qScore"></div>
+      <button class="btn g" id="qAgain">أَعِدِ الْمُرَاجَعَةَ</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ٤ ورقة العمل ============ -->
+<section class="stage" id="s4">
+  <h2>وَرَقَةُ الْعَمَلِ: التَّمْثِيلُ بِالصُّوَرِ</h2>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <span>اسْمُ الطَّالِبِ: <input class="name" id="sname"></span>
+      <span>الصَّفُّ: الثَّانِي / ......</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">١</span> أَسْتَعْمِلُ جَدْوَلَ الإِشَارَاتِ لِأُمَثِّلَ الْبَيَانَاتِ بِالصُّوَرِ</h3>
+    <div class="two">
+      <div id="w1T"></div>
+      <div id="w1G"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">٢</span> أَكْتُبُ الْعَدَدَ، ثُمَّ أُمَثِّلُ بِالصُّوَرِ</h3>
+    <div class="two">
+      <div id="w2T"></div>
+      <div id="w2G"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">٣</span> أَحُلُّ الْمَسْأَلَةَ: صَوَّتَ ٩ طُلَّابٍ لِمَادَّةِ الرِّيَاضِيَّاتِ</h3>
+    <div class="two">
+      <div>
+        <div class="item">أ) مَا الْمِفْتَاحُ الْمُنَاسِبُ؟ كُلُّ صُورَةٍ = <input class="inp" inputmode="numeric" id="w3k"> اسْتِجَابَاتٍ</div>
+        <div class="item" style="display:block">ب) أُكْمِلُ جَدْوَلَ الإِشَارَاتِ:
+          <table class="tt" id="w3T" style="margin-top:6px"><tr><th>الْمَادَّةُ الْمُفَضَّلَةُ</th><th>الإِشَارَاتُ</th><th class="noprint">ارْسُمْ</th></tr></table>
+        </div>
+        <div class="item">ج) كَمْ طَالِبًا اخْتَارَ التَّرْبِيَةَ الْبَدَنِيَّةَ؟ <input class="inp" inputmode="numeric" id="w3c"> طَالِبًا</div>
+      </div>
+      <div id="w3G"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🏠 نَشَاطٌ مَنْزِلِيٌّ</h3>
+    <p>مَثِّلْ بِالصُّوَرِ عَدَدَ الأَحْذِيَةِ وَالْجَوَارِبِ فِي غُرْفَتِكَ، وَلَا تَنْسَ كِتَابَةَ الْمِفْتَاحِ.</p>
+  </div>
+
+  <div class="row center noprint">
+    <button class="btn g" id="wCheck">تَحَقَّقْ مِنْ إِجَابَاتِي ✔</button>
+    <button class="btn l" id="wReset">مَسْح</button>
+    <button class="btn o" onclick="window.print()">طِبَاعَة 🖨</button>
+  </div>
+  <div class="result" id="wResult"></div>
+</section>
+
+<div class="foot">ابتدائية هشام بن عبد الملك — الخرج · معلم المادة: محمد مشعل العنزي</div>
+</main>
+
+<script>
+/* ---------- أدوات ---------- */
+const AR='٠١٢٣٤٥٦٧٨٩';
+const ar=n=>String(n).replace(/\d/g,d=>AR[d]);
+const num=s=>parseInt(String(s).trim().replace(/[٠-٩]/g,d=>AR.indexOf(d)),10);
+const $=id=>document.getElementById(id);
+
+function tally(n,h=40){
+  if(!n) return '<span style="color:#aab">—</span>';
+  const groups=Math.ceil(n/5), gw=h*0.95, gap=h*0.3, sp=h*0.19;
+  const W=groups*(gw+gap);
+  let s=`<svg class="tally" width="${W}" height="${h+8}" viewBox="0 0 ${W} ${h+8}" style="direction:ltr">`;
+  for(let g=0;g<groups;g++){
+    const k=Math.min(5,n-g*5), x0=(groups-1-g)*(gw+gap)+6;
+    for(let i=0;i<Math.min(k,4);i++){const x=x0+i*sp;s+=`<line x1="${x}" y1="4" x2="${x}" y2="${h+4}"/>`;}
+    if(k===5) s+=`<line class="slash" x1="${x0-6}" y1="${h-2}" x2="${x0+3*sp+6}" y2="10"/>`;
+  }
+  return s+'</svg>';
+}
+let actx;
+function beep(ok=true){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);
+    o.frequency.value=ok?880:220;o.type=ok?'sine':'square';g.gain.value=.08;
+    o.start();o.stop(actx.currentTime+(ok?.15:.25));
+    if(ok){const o2=actx.createOscillator();o2.connect(g);o2.frequency.value=1175;o2.start(actx.currentTime+.15);o2.stop(actx.currentTime+.3);}
+  }catch(e){}
+}
+function mark(el,ok){el.classList.remove('good','wrong');el.classList.add(ok?'good':'wrong');return ok?1:0;}
+
+/* جدول إشارات ثابت */
+function tallyTable(head,rows,countCol){
+  return `<table class="tt"><tr><th>${head}</th><th>الإِشَارَاتُ</th>${countCol?'<th>الْعَدَدُ</th>':''}</tr>`+
+    rows.map((r,i)=>`<tr><td>${r.e} ${r.n}</td><td class="tl">${tally(r.v,34)}</td>${countCol?countCol(r,i):''}</tr>`).join('')+'</table>';
+}
+
+/* شبكة التمثيل بالصور */
+function makeGrid(el,{title,rows,cols,keyText,interactive=true}){
+  const vals=rows.map(()=>0);
+  let h=`<div class="pgwrap"><div class="pgtitle">${title}</div><table class="pg${interactive?'':' static'}"><tbody>`;
+  rows.forEach((r,i)=>{
+    h+=`<tr><td class="lab" style="background:${r.bg}">${r.e} ${r.n}</td>`;
+    for(let c=0;c<cols;c++) h+=`<td class="cell" data-r="${i}" data-c="${c}"></td>`;
+    h+='</tr>';
+  });
+  h+=`</tbody></table><div class="key">${keyText}</div></div>`;
+  el.innerHTML=h;
+  const labs=el.querySelectorAll('td.lab');
+  const g={vals,
+    render(){el.querySelectorAll('td.cell').forEach(td=>{
+      const r=+td.dataset.r,c=+td.dataset.c,f=c<vals[r],had=td.textContent!=='';
+      td.textContent=f?rows[r].e:'';
+      td.classList.remove('pop'); if(f&&!had){void td.offsetWidth;td.classList.add('pop');}
+    });},
+    set(i,v){vals[i]=v;g.render();},
+    clear(){vals.fill(0);labs.forEach(t=>t.classList.remove('good','wrong'));g.render();},
+    check(exp){let s=0;labs.forEach((t,i)=>{s+=mark(t,vals[i]===exp[i]);});return s;}
+  };
+  if(interactive) el.addEventListener('click',e=>{
+    const td=e.target.closest('td.cell');if(!td)return;
+    const r=+td.dataset.r,c=+td.dataset.c;
+    vals[r]=(vals[r]===c+1)?c:c+1;
+    labs[r].classList.remove('good','wrong');g.render();beep();
+  });
+  return g;
+}
+
+/* ---------- التنقل والمؤقت ---------- */
+const mins={1:3,2:10,3:4,4:3};
+let cur=1,left=180,run=false,tick;
+function showT(){const m=Math.floor(left/60),s=left%60;$('tval').textContent=ar(m)+':'+ar(String(s).padStart(2,'0'));}
+function resetT(){clearInterval(tick);run=false;left=mins[cur]*60;$('tbtn').textContent='ابدأ';$('timer').classList.remove('done');showT();}
+function setStage(n){
+  cur=n;document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.s==n));
+  resetT();window.scrollTo({top:0,behavior:'smooth'});
+}
+$('tbtn').onclick=()=>{
+  if(run){clearInterval(tick);run=false;$('tbtn').textContent='ابدأ';return;}
+  run=true;$('tbtn').textContent='إيقاف';
+  tick=setInterval(()=>{if(left>0){left--;showT();}if(left===0){clearInterval(tick);run=false;$('tbtn').textContent='ابدأ';$('timer').classList.add('done');beep(false);}},1000);
+};
+$('treset').onclick=resetT;
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>setStage(+b.dataset.s));
+document.querySelectorAll('[data-reveal]').forEach(b=>b.onclick=()=>$(b.dataset.reveal).classList.add('on'));
+showT();
+
+/* أزرار اختيار بسيطة */
+function optClick(b,ok){
+  if(ok){b.classList.add('ok');beep();}
+  else{b.classList.add('no');beep(false);setTimeout(()=>b.classList.remove('no'),600);}
+}
+
+/* ---------- ١ التهيئة ---------- */
+const wu=[{n:4,o:[3,4,5]},{n:7,o:[6,7,8]},{n:10,o:[8,10,12]}];
+$('wu').innerHTML=wu.map((w,i)=>`<div class="item"><span class="num">${ar(i+1)}</span>${tally(w.n,44)}<span>←</span>
+  <div class="opts" style="margin:0">${w.o.map(v=>`<button class="opt" data-wu="${i}" data-v="${v}">${ar(v)}</button>`).join('')}</div></div>`).join('');
+$('wu').addEventListener('click',e=>{const b=e.target.closest('[data-wu]');if(b)optClick(b,+b.dataset.v===wu[b.dataset.wu].n);});
+
+let pairs=0;
+function drawShoes(){
+  $('shoes').innerHTML=Array.from({length:pairs},(_,i)=>`<span class="kp"><span>👟</span><small>${ar((i+1)*2)}</small></span>`).join('');
+  $('shoeCount').textContent=ar(pairs*2);
+}
+$('addShoe').onclick=()=>{if(pairs<8){pairs++;drawShoes();beep();}};
+$('resetShoe').onclick=()=>{pairs=0;drawShoes();};
+drawShoes();
+
+/* ---------- ٢ الدرس ---------- */
+const birds=[{e:'🕊️',n:'حَمَامَةٌ',v:2,bg:'#fde2c4'},{e:'🐤',n:'عُصْفُورٌ',v:4,bg:'#d6ecc9'}];
+$('salmaT').innerHTML=tallyTable('الطَّائِرُ الْمُفَضَّلُ',birds);
+const salma=makeGrid($('salmaG'),{title:'الطَّائِرُ الْمُفَضَّلُ',rows:birds,cols:5,interactive:false,
+  keyText:'الْمِفْتَاحُ: كُلُّ طَائِرٍ يُمَثِّلُ اسْتِجَابَةً وَاحِدَةً'});
+let salmaT=[];
+$('salmaGo').onclick=()=>{
+  salmaT.forEach(clearTimeout);salma.clear();
+  const seq=[[0,1],[0,2],[1,1],[1,2],[1,3],[1,4]];
+  salmaT=seq.map(([r,v],k)=>setTimeout(()=>{salma.set(r,v);beep();},450*(k+1)));
+};
+document.querySelectorAll('[data-q="salma"] .opt').forEach(b=>b.onclick=()=>optClick(b,b.dataset.a==='1'));
+
+let kn=6,kk=1;
+function drawK(){
+  const n=kn/kk;
+  $('kNum').textContent=ar(kn);$('kTally').innerHTML=tally(kn,40);
+  $('kPics').innerHTML=Array.from({length:n},(_,i)=>`<span class="kp"><span>🐟</span><small>${ar((i+1)*kk)}</small></span>`).join('');
+  $('kMsg').textContent=`${ar(kn)} اسْتِجَابَاتٍ ← نَرْسُمُ ${ar(n)} ${n<=10&&n>=3?'صُوَرٍ':'صُورَةً'}`;
+  document.querySelectorAll('[data-k]').forEach(b=>b.classList.toggle('sel',+b.dataset.k===kk));
+}
+$('kAdd').onclick=()=>{if(kn<14){kn+=2;drawK();beep();}};
+$('kSub').onclick=()=>{if(kn>2){kn-=2;drawK();}};
+document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kk=+b.dataset.k;drawK();beep();});
+drawK();
+
+const animals=[{e:'🐟',n:'السَّمَكَةُ',v:10,bg:'#fde2c4'},{e:'🐦',n:'الطَّائِرُ',v:6,bg:'#d6ecc9'},{e:'🐱',n:'الْقِطَّةُ',v:12,bg:'#fff3b0'},{e:'🐰',n:'الأَرْنَبُ',v:2,bg:'#dbe8fb'}];
+const animExp=animals.map(a=>a.v/2);
+$('animT').innerHTML=tallyTable('الْحَيَوَانُ الْمُفَضَّلُ',animals);
+const animG=makeGrid($('animG'),{title:'الْحَيَوَانُ الْمُفَضَّلُ',rows:animals,cols:7,keyText:'الْمِفْتَاحُ: كُلُّ حَيَوَانٍ يُمَثِّلُ اسْتِجَابَتَيْنِ'});
+$('animCheck').onclick=()=>{
+  const s=animG.check(animExp);
+  $('animMsg').style.color=s===4?'var(--ok)':'var(--red)';
+  $('animMsg').textContent=s===4?'أَحْسَنْتَ! 🌟 كُلُّ صُورَةٍ = ٢':'رَاجِعِ الصُّفُوفَ الْحَمْرَاءَ: عُدَّ بِالِاثْنَيْنِ ٢، ٤، ٦…';
+  beep(s===4);
+};
+$('animShow').onclick=()=>{animExp.forEach((v,i)=>animG.set(i,v));$('animMsg').textContent='';};
+$('animClr').onclick=()=>{animG.clear();$('animMsg').textContent='';};
+
+/* ---------- ٣ المراجعة ---------- */
+const K=t=>`<div class="key" style="font-size:20px">الْمِفْتَاحُ: ${t}</div>`;
+const quiz=[
+  {q:'كَمْ تُمَثِّلُ هَذِهِ الصُّوَرُ؟',v:'🍎🍎🍎🍎'+K('كُلُّ 🍎 = ١'),o:[3,4,8],a:4},
+  {q:'كَمْ تُمَثِّلُ هَذِهِ الصُّوَرُ؟',v:'🐟🐟🐟🐟'+K('كُلُّ 🐟 = ٢'),o:[4,6,8],a:8},
+  {q:'إِذَا كَانَ الْمِفْتَاحُ: كُلُّ 🐱 = ٢، فَكَمْ صُورَةً نَرْسُمُ؟',v:tally(6,56),o:[3,6,2],a:3},
+  {q:'أَيُّ رِيَاضَةٍ يُفَضِّلُهَا عَدَدٌ أَكْبَرُ؟',v:'<div><span class="ql">كُرَةُ الْقَدَمِ: </span>⚽⚽⚽</div><div><span class="ql">السِّبَاحَةُ: </span>🏊🏊🏊🏊🏊</div>'+K('كُلُّ صُورَةٍ = ١'),o:['كُرَةُ الْقَدَمِ','السِّبَاحَةُ'],a:'السِّبَاحَةُ'},
+  {q:'صَوَّتَ ٩ طُلَّابٍ لِلرِّيَاضِيَّاتِ. مَا الْمِفْتَاحُ؟',v:'✏️✏️✏️'+K('كُلُّ ✏️ = ؟'),o:[2,3,9],a:3},
+  {q:'كَمْ تُمَثِّلُ هَذِهِ الصُّوَرُ؟',v:'👟👟👟👟👟'+K('كُلُّ 👟 = ٣'),o:[5,8,15],a:15},
+  {q:'مَا الَّذِي يُبَيِّنُ كَمْ تُمَثِّلُ كُلُّ صُورَةٍ؟',v:'🤔',o:['الْعُنْوَانُ','الْمِفْتَاحُ','الإِشَارَاتُ'],a:'الْمِفْتَاحُ'}
+];
+let qi=0,answered=false;
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+const fmt=v=>typeof v==='number'?ar(v):v;
+function showQ(){
+  const q=quiz[qi];answered=false;
+  $('qBar').style.width=(qi/quiz.length*100)+'%';
+  $('qText').textContent=`${ar(qi+1)}) ${q.q}`;
+  $('qVis').innerHTML=q.v;
+  $('qMsg').textContent='';$('qNext').style.display='none';
+  $('qOpts').innerHTML=shuffle(q.o).map(v=>`<button class="opt" data-v="${v}">${fmt(v)}</button>`).join('');
+}
+$('qOpts').onclick=e=>{
+  const b=e.target.closest('.opt');if(!b||answered||b.disabled)return;
+  const q=quiz[qi];
+  if(b.dataset.v===String(q.a)){b.classList.add('ok');answered=true;beep();$('qMsg').style.color='var(--ok)';$('qMsg').textContent='أَحْسَنْتَ! 🌟';$('qNext').style.display='inline-block';}
+  else{b.classList.add('no');b.disabled=true;q.miss=true;beep(false);$('qMsg').style.color='var(--red)';$('qMsg').textContent='حَاوِلْ مَرَّةً أُخْرَى، انْظُرْ إِلَى الْمِفْتَاحِ';}
+};
+$('qNext').onclick=()=>{qi++; if(qi<quiz.length) showQ(); else endQ();};
+function endQ(){
+  $('qBar').style.width='100%';$('qText').textContent='انْتَهَتِ الْمُرَاجَعَةُ!';$('qVis').innerHTML='';$('qOpts').innerHTML='';$('qMsg').textContent='';$('qNext').style.display='none';
+  const first=quiz.filter(q=>!q.miss).length;
+  $('qStars').textContent='⭐'.repeat(Math.max(1,Math.round(first/quiz.length*5)));
+  $('qScore').textContent=`أَجَبْتَ صَحِيحًا مِنَ الْمُحَاوَلَةِ الأُولَى: ${ar(first)} مِنْ ${ar(quiz.length)}`;
+  $('qEnd').style.display='block';
+}
+$('qAgain').onclick=()=>{qi=0;quiz.forEach(q=>delete q.miss);$('qEnd').style.display='none';showQ();};
+showQ();
+
+/* ---------- ٤ ورقة العمل ---------- */
+const fruits=[{e:'🍊',n:'بُرْتُقَالٌ',v:6,bg:'#fde2c4'},{e:'🍇',n:'عِنَبٌ',v:1,bg:'#e4d6f3'},{e:'🍌',n:'مَوْزٌ',v:5,bg:'#fff3b0'},{e:'🍓',n:'فَرَاوِلَةٌ',v:2,bg:'#f9d0cc'},{e:'🍎',n:'تُفَّاحٌ',v:7,bg:'#f9d0cc'}];
+$('w1T').innerHTML=tallyTable('الْفَاكِهَةُ الْمُفَضَّلَةُ',fruits);
+const w1G=makeGrid($('w1G'),{title:'الْفَاكِهَةُ الْمُفَضَّلَةُ',rows:fruits,cols:7,keyText:'الْمِفْتَاحُ: كُلُّ صُورَةٍ = اسْتِجَابَةٌ وَاحِدَةٌ'});
+
+const ways=[{e:'🚌',n:'الْحَافِلَةُ',v:4,bg:'#fff3b0'},{e:'🚶',n:'الْمَشْيُ عَلَى الأَقْدَامِ',v:10,bg:'#fde2c4'},{e:'🚗',n:'السَّيَّارَةُ',v:4,bg:'#d6ecc9'}];
+$('w2T').innerHTML=tallyTable('طَرِيقَةُ الذَّهَابِ إِلَى الْمَدْرَسَةِ',ways,(r,i)=>`<td><input class="inp" inputmode="numeric" data-w2="${i}"></td>`);
+const w2G=makeGrid($('w2G'),{title:'طَرِيقَةُ الذَّهَابِ إِلَى الْمَدْرَسَةِ',rows:ways,cols:5,keyText:'الْمِفْتَاحُ: كُلُّ صُورَةٍ = اسْتِجَابَتَانِ'});
+
+const subj=[{e:'✏️',n:'الرِّيَاضِيَّاتُ',pics:3,v:9,bg:'#d6ecc9'},{e:'📗',n:'الْقِرَاءَةُ',pics:1,v:3,bg:'#fde2c4'},{e:'👟',n:'التَّرْبِيَةُ الْبَدَنِيَّةُ',pics:5,v:15,bg:'#fff3b0'}];
+const w3G=makeGrid($('w3G'),{title:'الْمَادَّةُ الْمُفَضَّلَةُ',rows:subj,cols:5,interactive:false,keyText:'الْمِفْتَاحُ: كُلُّ صُورَةٍ = ...... اسْتِجَابَاتٍ'});
+subj.forEach((s,i)=>w3G.set(i,s.pics));
+const tv=subj.map(()=>0);
+subj.forEach((s,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${s.e} ${s.n}</td><td class="tl" id="w3t${i}"></td>
+   <td class="noprint"><div class="row center"><button class="mini m" data-tm="${i}">−</button><button class="mini" data-tp="${i}">+</button></div></td>`;
+  $('w3T').appendChild(tr);
+});
+function drawTv(){tv.forEach((v,i)=>$('w3t'+i).innerHTML=tally(v,32));}
+$('w3T').addEventListener('click',e=>{
+  const p=e.target.dataset.tp,m=e.target.dataset.tm;
+  if(p!==undefined&&tv[p]<20)tv[p]++; if(m!==undefined&&tv[m]>0)tv[m]--;
+  const i=p??m; if(i!==undefined) $('w3t'+i).classList.remove('good','wrong');
+  drawTv();
+});
+drawTv();
+
+$('wCheck').onclick=()=>{
+  let s=0,t=0;
+  s+=w1G.check(fruits.map(f=>f.v));t+=fruits.length;
+  document.querySelectorAll('[data-w2]').forEach(inp=>{t++;s+=mark(inp,num(inp.value)===ways[inp.dataset.w2].v);});
+  s+=w2G.check(ways.map(w=>w.v/2));t+=ways.length;
+  t++;s+=mark($('w3k'),num($('w3k').value)===3);
+  subj.forEach((x,i)=>{t++;s+=mark($('w3t'+i),tv[i]===x.v);});
+  t++;s+=mark($('w3c'),num($('w3c').value)===15);
+  $('wResult').innerHTML= s===t ? `🎉 مُمْتَازٌ! ${ar(s)} مِنْ ${ar(t)}` : `دَرَجَتُكَ: ${ar(s)} مِنْ ${ar(t)} — صَحِّحِ الْمُلَوَّنَ بِالأَحْمَرِ`;
+  beep(s===t);
+};
+$('wReset').onclick=()=>{
+  document.querySelectorAll('#s4 .inp').forEach(i=>{i.value='';i.classList.remove('good','wrong');});
+  w1G.clear();w2G.clear();
+  tv.fill(0);subj.forEach((x,i)=>$('w3t'+i).classList.remove('good','wrong'));drawTv();
+  $('wResult').textContent='';
+};
+</script>
+</body>
+</html>
