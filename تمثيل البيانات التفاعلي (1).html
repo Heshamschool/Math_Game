@@ -1,0 +1,316 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>تمثيل البيانات التفاعلي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap">
+<style>
+/* Layout: classroom-screen worksheet — one wide column of three lesson cards; stimulus beside its questions */
+:root{
+  --bg:#eef3f7; --card:#ffffff; --ink:#14212b; --muted:#56656f; --line:#c9d5de; --soft:#f3f7fa;
+  --accent:#0f7c8c; --accent-soft:#dff1f3;
+  --ok:#1f8a4c; --ok-soft:#e1f5e8; --bad:#c2410c; --bad-soft:#fdeee5; --hl:#fff2a8;
+  --f:'Tajawal','Noto Kufi Arabic','Segoe UI',Tahoma,sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f);direction:rtl;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+*{box-sizing:border-box}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.top h1{margin:0;font-size:clamp(24px,3.2vw,36px);font-weight:800;text-wrap:balance}
+.top h1 small{display:block;font-size:.5em;color:var(--muted);font-weight:700;margin-top:2px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.score{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 18px;font-size:20px;font-weight:800}
+.score b{color:var(--accent);font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-weight:800;font-size:18px;border-radius:999px;border:2px solid var(--ink);background:var(--card);color:var(--ink);padding:8px 18px;cursor:pointer;min-height:46px}
+.btn:hover{background:var(--soft)}
+.btn:focus-visible,.opt:focus-visible,.cell:focus-visible,.pm:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-weight:800;font-size:17px;border:0;background:transparent;color:var(--ink);padding:9px 16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+
+.card{background:var(--card);border-radius:18px;border:2px solid var(--line);overflow:hidden}
+.card > h2{margin:0;padding:12px 20px;font-size:24px;font-weight:800;background:var(--accent-soft);border-bottom:2px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card > h2 small{font-size:16px;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:22px;padding:20px}
+.grid > *{min-width:0}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.cap{font-size:19px;font-weight:800;text-align:center;margin-bottom:8px}
+.key{font-size:16px;color:var(--muted);text-align:center;margin-top:8px;font-weight:700}
+
+/* stimulus tables */
+.tw{overflow-x:auto}
+table.t{border-collapse:collapse;margin:0 auto;font-size:20px}
+table.t th,table.t td{border:2px solid var(--line);padding:6px 12px;text-align:center;vertical-align:middle;height:52px;transition:background .25s}
+table.t th{background:var(--soft);font-weight:800}
+tr.hl td,td.hl{background:var(--hl)}
+.emo{font-size:26px;line-height:1}
+.pics{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;font-size:30px;line-height:1}
+
+/* questions */
+.qs{display:flex;flex-direction:column;gap:14px}
+.q{border:2px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;transition:border-color .2s,background .2s}
+.q.ok{border-color:var(--ok);background:var(--ok-soft)}
+.n{flex:none;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--card);display:grid;place-items:center;font-size:20px;font-weight:800}
+.qb{flex:1;min-width:0}
+.qt{font-size:22px;font-weight:700;line-height:1.5}
+.opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.opt{font:inherit;font-size:22px;font-weight:800;min-width:76px;min-height:52px;padding:6px 18px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,background .2s,border-color .2s}
+.opt:hover{border-color:var(--ink)}
+.opt.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.fb{font-size:19px;font-weight:800;min-height:1.2em}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.how{font:inherit;font-size:17px;font-weight:800;border:0;background:none;color:var(--accent);cursor:pointer;padding:6px 2px;text-decoration:underline;text-underline-offset:4px}
+.sol{margin-top:10px;background:var(--soft);border-radius:10px;padding:10px 14px;font-size:20px;line-height:1.6;font-weight:700;border-inline-start:5px solid var(--accent)}
+.sol .eq{display:inline-block;background:var(--card);border:2px solid var(--line);border-radius:8px;padding:0 10px;margin:0 4px;font-weight:800}
+
+/* Q6 cars */
+.carTable td.pics{justify-content:flex-start}
+.carRow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:40px;justify-content:flex-start}
+.pm{font:inherit;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-size:26px;font-weight:800;cursor:pointer;line-height:1;color:var(--ink)}
+.car{width:46px;height:28px;flex:none}
+
+/* Q10 grid */
+.bargrid{display:flex;gap:14px;align-items:flex-end;justify-content:center;margin-top:12px}
+.yax{display:flex;flex-direction:column-reverse;font-size:16px;font-weight:700;color:var(--muted);padding-bottom:34px}
+.yax span{height:34px;display:flex;align-items:flex-end;justify-content:center;width:22px;line-height:1;transform:translateY(8px)}
+.colw{display:flex;flex-direction:column;align-items:center;gap:6px}
+.col{display:flex;flex-direction:column-reverse;border:2px solid var(--ink);border-bottom-width:3px}
+.cell{width:64px;height:34px;border:0;border-top:1px solid var(--line);background:var(--card);cursor:pointer;padding:0}
+.cell.on{background:var(--c)}
+.colw .lb{font-size:17px;font-weight:800;height:28px}
+
+/* black & white mode: images and charts only */
+body.bw .stim,body.bw .carRow,body.bw .col,body.bw .car{filter:grayscale(1) contrast(1.1)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>تمثيل البيانات وقراءتها<small>الرياضيات — الصف الثاني — الفصل ٤</small></h1>
+    <div class="tools">
+      <div class="score">الإجابات الصحيحة: <b id="score">٠</b> / ١٠</div>
+      <div class="seg" role="group" aria-label="الألوان">
+        <button id="mColor" aria-pressed="true">ملوّن</button>
+        <button id="mBW" aria-pressed="false">بدون ألوان</button>
+      </div>
+      <button class="btn" id="reset">إعادة الورقة</button>
+    </div>
+  </header>
+
+  <!-- Lesson 1: tally -->
+  <section class="card">
+    <h2>أولًا: جدول الإشارات <small>الدرس ١</small></h2>
+    <div class="grid">
+      <div class="stim">
+        <div class="cap">الفاكهة المفضلة لطلاب الصف</div>
+        <div class="tw"><table class="t">
+          <tr><th>الفاكهة</th><th>الإشارات</th><th>العدد</th></tr>
+          <tr id="f-apple"><td><span class="emo">🍎</span> تفاح</td><td data-tally="4"></td><td>٤</td></tr>
+          <tr id="f-banana"><td><span class="emo">🍌</span> موز</td><td data-tally="8"></td><td data-hidden="٨">؟</td></tr>
+          <tr id="f-orange"><td><span class="emo">🍊</span> برتقال</td><td data-tally="2"></td><td>٢</td></tr>
+          <tr id="f-grape"><td><span class="emo">🍇</span> عنب</td><td data-tally="6"></td><td data-hidden="٦">؟</td></tr>
+        </table></div>
+      </div>
+      <div class="qs" data-sec="tally"></div>
+    </div>
+  </section>
+
+  <!-- Lessons 2–3: pictograph -->
+  <section class="card">
+    <h2>ثانيًا: التمثيل بالصور وقراءته <small>الدرسان ٢ ، ٣</small></h2>
+    <div class="grid">
+      <div class="stim">
+        <div class="cap">الحيوان الأليف المفضل</div>
+        <div class="tw"><table class="t">
+          <tr id="a-cat"><td>قطط</td><td><div class="pics">🐱🐱🐱🐱🐱</div></td></tr>
+          <tr id="a-bird"><td>طيور</td><td><div class="pics">🐦🐦🐦</div></td></tr>
+          <tr id="a-fish"><td>أسماك</td><td><div class="pics">🐟🐟🐟🐟🐟🐟</div></td></tr>
+          <tr id="a-rabbit"><td>أرانب</td><td><div class="pics">🐰🐰</div></td></tr>
+        </table></div>
+        <div class="key">المفتاح: كل صورة = طالب واحد</div>
+      </div>
+      <div class="qs" data-sec="pict">
+        <div class="q" id="q6" data-order="6"><span class="n">٦</span><div class="qb">
+          <div class="qt">سيارات في موقف المدرسة: مثّلها بالصور، وأضف سيارة لكل سيارة.</div>
+          <div class="tw" style="margin-top:10px"><table class="t carTable" style="margin:0;width:100%">
+            <tr><th>اللون</th><th>العدد</th><th>التمثيل بالصور</th></tr>
+            <tr><td>بيضاء</td><td>٤</td><td><div class="row" style="margin:0"><button class="pm" data-car="w" data-d="-1" aria-label="احذف سيارة بيضاء">−</button><div class="carRow" id="cw"></div><button class="pm" data-car="w" data-d="1" aria-label="أضف سيارة بيضاء">+</button></div></td></tr>
+            <tr><td>سوداء</td><td>٣</td><td><div class="row" style="margin:0"><button class="pm" data-car="b" data-d="-1" aria-label="احذف سيارة سوداء">−</button><div class="carRow" id="cb"></div><button class="pm" data-car="b" data-d="1" aria-label="أضف سيارة سوداء">+</button></div></td></tr>
+          </table></div>
+          <div class="row"><button class="btn" id="check6">تحقّق</button><span class="fb" id="fb6"></span></div>
+          <button class="how" data-how="6">طريقة الحل</button>
+          <div class="sol" id="sol6" hidden>نقرأ العدد في كل صف، ثم نرسم سيارة واحدة لكل سيارة: البيضاء <span class="eq">٤</span> سيارات، والسوداء <span class="eq">٣</span> سيارات.</div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lessons 5–6: bar graph -->
+  <section class="card">
+    <h2>ثالثًا: التمثيل بالأعمدة وقراءته <small>الدرسان ٥ ، ٦</small></h2>
+    <div class="grid">
+      <div class="stim">
+        <div class="cap">اللون المفضل لطلاب الصف</div>
+        <div class="tw"><svg id="bars" viewBox="0 0 420 300" style="width:100%;max-width:440px;display:block;margin:0 auto"></svg></div>
+      </div>
+      <div class="qs" data-sec="bars">
+        <div class="q" id="q10" data-order="10"><span class="n">١٠</span><div class="qb">
+          <div class="qt">اضغط على المربعات لتمثّل عدد الأيام الممطرة بالأعمدة:</div>
+          <div class="tw"><table class="t" style="margin-top:10px">
+            <tr><th>الشهر</th><th>صفر</th><th>ربيع الأول</th><th>ربيع الآخر</th></tr>
+            <tr><th>الأيام الممطرة</th><td>٣</td><td>٥</td><td>٢</td></tr>
+          </table></div>
+          <div class="bargrid" id="bg"></div>
+          <div class="row"><button class="btn" id="check10">تحقّق</button><span class="fb" id="fb10"></span></div>
+          <button class="how" data-how="10">طريقة الحل</button>
+          <div class="sol" id="sol10" hidden>نبدأ من الأسفل ونظلّل مربعًا لكل يوم: صفر <span class="eq">٣</span> مربعات، ربيع الأول <span class="eq">٥</span>، ربيع الآخر <span class="eq">٢</span>.</div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+
+/* ---------- multiple-choice questions ---------- */
+const QS=[
+ {n:1,sec:'tally',t:'كم طالبًا اختار الموز؟',o:['٦','٨','٤'],a:'٨',hl:['f-banana'],reveal:'f-banana',
+  s:'ننظر إلى صف الموز ونعدّ الإشارات: حزمة فيها ٥ ثم ٣ إشارات، <span class="eq">٥ + ٣ = ٨</span>'},
+ {n:2,sec:'tally',t:'ما الفاكهة التي اختارها أكبر عدد من الطلاب؟',o:['التفاح','الموز','العنب'],a:'الموز',hl:['f-banana'],
+  s:'نقارن الأعداد: ٤ ، ٨ ، ٢ ، ٦ — أكبرها <span class="eq">٨</span> وهو الموز.'},
+ {n:3,sec:'tally',t:'كم يزيد عدد من اختار العنب على من اختار التفاح؟',o:['١','٢','٣'],a:'٢',hl:['f-grape','f-apple'],reveal:'f-grape',
+  s:'العنب ٦ والتفاح ٤، نطرح: <span class="eq">٦ − ٤ = ٢</span>'},
+ {n:4,sec:'pict',t:'ما الحيوان الذي اختاره أقل عدد من الطلاب؟',o:['الطيور','الأرانب','القطط'],a:'الأرانب',hl:['a-rabbit'],
+  s:'نبحث عن الصف الأقصر: الأرانب فيه صورتان فقط، <span class="eq">٢</span> أقل عدد.'},
+ {n:5,sec:'pict',t:'كم طالبًا اختار القطط والطيور معًا؟',o:['٨','٧','٩'],a:'٨',hl:['a-cat','a-bird'],
+  s:'القطط ٥ صور والطيور ٣ صور، نجمع: <span class="eq">٥ + ٣ = ٨</span>'},
+ {n:7,sec:'bars',t:'كم طالبًا اختار اللون الأزرق؟',o:['٥','٦','٧'],a:'٧',bar:'أزرق',
+  s:'نتتبّع رأس عمود الأزرق إلى الخط الأفقي، فنجده عند <span class="eq">٧</span>'},
+ {n:8,sec:'bars',t:'ما اللون الذي اختاره ٤ طلاب؟',o:['الأحمر','الأخضر','الأصفر'],a:'الأخضر',bar:'أخضر',
+  s:'نبحث عن العمود الذي يصل رأسه إلى العدد <span class="eq">٤</span> وهو الأخضر.'},
+ {n:9,sec:'bars',t:'كم يزيد عدد من اختار الأحمر على من اختار الأصفر؟',o:['٢','٣','٤'],a:'٣',bar:['أحمر','أصفر'],
+  s:'الأحمر ٥ والأصفر ٢، نطرح: <span class="eq">٥ − ٢ = ٣</span>'},
+];
+const solved=new Set();
+function setScore(){document.getElementById('score').textContent=AR(solved.size)}
+
+function clearHL(){document.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));drawBars([])}
+function highlight(q){clearHL();(q.hl||[]).forEach(id=>document.getElementById(id).classList.add('hl'));if(q.bar)drawBars([].concat(q.bar));}
+
+QS.forEach(q=>{
+  const host=document.querySelector(`[data-sec="${q.sec}"]`);
+  const el=document.createElement('div');el.className='q';el.id='q'+q.n;el.dataset.order=q.n;
+  el.innerHTML=`<span class="n">${AR(q.n)}</span><div class="qb"><div class="qt">${q.t}</div>
+    <div class="opts">${q.o.map(o=>`<button class="opt">${o}</button>`).join('')}</div>
+    <div class="row"><span class="fb"></span></div>
+    <button class="how">طريقة الحل</button><div class="sol" hidden>${q.s}</div></div>`;
+  const fb=el.querySelector('.fb'), sol=el.querySelector('.sol');
+  el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    if(el.classList.contains('ok'))return;
+    if(b.textContent===q.a){
+      b.classList.add('right');el.classList.add('ok');fb.className='fb ok';fb.textContent='أحسنت! إجابة صحيحة';
+      solved.add(q.n);setScore();highlight(q);reveal(q);
+    }else{
+      b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');
+      fb.className='fb bad';fb.textContent='حاول مرة أخرى، واضغط «طريقة الحل» للمساعدة';
+    }
+  }));
+  el.querySelector('.how').addEventListener('click',()=>{sol.hidden=!sol.hidden;if(!sol.hidden){highlight(q);reveal(q)}else clearHL()});
+  // keep numeric order inside each section
+  const after=[...host.children].find(c=>+c.dataset.order>q.n);
+  host.insertBefore(el,after||null);
+});
+function reveal(q){if(!q.reveal)return;const c=document.querySelector(`#${q.reveal} [data-hidden]`);if(c)c.textContent=c.dataset.hidden}
+
+/* ---------- tally marks ---------- */
+document.querySelectorAll('[data-tally]').forEach(td=>{
+  const n=+td.dataset.tally,groups=Math.ceil(n/5),W=64;let s='';const w=groups*W;
+  for(let g=0;g<groups;g++){
+    const c=Math.min(5,n-g*5),x0=w-g*W-54;
+    for(let i=0;i<Math.min(c,4);i++)s+=`<line x1="${x0+i*12+6}" y1="4" x2="${x0+i*12+6}" y2="32" stroke="#14212b" stroke-width="3.2" stroke-linecap="round"/>`;
+    if(c===5)s+=`<line x1="${x0}" y1="27" x2="${x0+48}" y2="9" stroke="#d62828" stroke-width="3.2" stroke-linecap="round"/>`;
+  }
+  td.innerHTML=`<svg width="${W*2}" height="36" viewBox="${w-W*2} 0 ${W*2} 36" aria-label="${AR(n)} إشارات">${s}</svg>`;
+});
+
+/* ---------- bar graph ---------- */
+const BARS=[{l:'أحمر',v:5,c:'#e53935'},{l:'أزرق',v:7,c:'#1e6fd9'},{l:'أخضر',v:4,c:'#2e9e4f'},{l:'أصفر',v:2,c:'#f4c20d'}];
+function drawBars(focus){
+  const svg=document.getElementById('bars');const ox=44,oy=262,h=28,max=8,bw=58,gap=30;let s='';
+  for(let v=0;v<=max;v++){const y=oy-v*h;
+    s+=`<line x1="${ox}" y1="${y}" x2="${ox+4*(bw+gap)+gap}" y2="${y}" stroke="${v?'#d8e1e8':'#14212b'}" stroke-width="${v?1.2:2.5}"/>`;
+    s+=`<text x="${ox-10}" y="${y+6}" font-size="17" font-weight="700" text-anchor="end" fill="#56656f" font-family="Tajawal,sans-serif">${AR(v)}</text>`;}
+  s+=`<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-max*h}" stroke="#14212b" stroke-width="2.5"/>`;
+  // RTL: first category on the right
+  BARS.forEach((b,i)=>{const x=ox+gap+(3-i)*(bw+gap);const f=focus.includes(b.l);
+    const dim=focus.length&&!f;
+    s+=`<rect x="${x}" y="${oy-b.v*h}" width="${bw}" height="${b.v*h}" rx="4" fill="${b.c}" opacity="${dim?.35:1}" stroke="#14212b" stroke-width="${f?3:1.5}"/>`;
+    if(f)s+=`<line x1="${ox}" y1="${oy-b.v*h}" x2="${x}" y2="${oy-b.v*h}" stroke="#14212b" stroke-width="2" stroke-dasharray="6 5"/><text x="${x+bw/2}" y="${oy-b.v*h-8}" font-size="20" font-weight="800" text-anchor="middle" fill="#14212b" font-family="Tajawal,sans-serif">${AR(b.v)}</text>`;
+    s+=`<text x="${x+bw/2}" y="${oy+26}" font-size="19" font-weight="800" text-anchor="middle" fill="#14212b" font-family="Tajawal,sans-serif">${b.l}</text>`;});
+  s+=`<text x="14" y="${oy-max*h/2}" font-size="16" font-weight="700" text-anchor="middle" fill="#56656f" font-family="Tajawal,sans-serif" transform="rotate(-90 14 ${oy-max*h/2})">عدد الطلاب</text>`;
+  svg.innerHTML=s;
+}
+drawBars([]);
+
+/* ---------- Q6 cars ---------- */
+const carSVG=fill=>`<svg class="car" viewBox="0 0 46 28" aria-hidden="true"><path d="M3 20 V14.5 Q3 12.5 6 12 L12 11 L17 4.8 Q18 3.6 20 3.6 H30 Q32 3.6 33.4 5.2 L38 11 Q43 11.6 43 15 V20 Z" fill="${fill}" stroke="#14212b" stroke-width="2" stroke-linejoin="round"/><path d="M18.4 11 L21 6.2 H25 V11 Z M27.5 11 V6.2 H30.6 L34 11 Z" fill="#8fd3f4" stroke="#14212b" stroke-width="1.2"/><circle cx="12.5" cy="20.5" r="4.4" fill="#14212b"/><circle cx="12.5" cy="20.5" r="1.6" fill="#c9d5de"/><circle cx="33.5" cy="20.5" r="4.4" fill="#14212b"/><circle cx="33.5" cy="20.5" r="1.6" fill="#c9d5de"/></svg>`;
+const cars={w:0,b:0};
+function drawCars(){document.getElementById('cw').innerHTML=carSVG('#ffffff').repeat(cars.w);document.getElementById('cb').innerHTML=carSVG('#2b3640').repeat(cars.b);}
+document.querySelectorAll('.pm').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.car;cars[k]=Math.max(0,Math.min(8,cars[k]+ +b.dataset.d));drawCars();}));
+document.getElementById('check6').addEventListener('click',()=>{
+  const fb=document.getElementById('fb6'),q=document.getElementById('q6');
+  if(cars.w===4&&cars.b===3){q.classList.add('ok');fb.className='fb ok';fb.textContent='أحسنت! تمثيل صحيح';solved.add(6);setScore();}
+  else{fb.className='fb bad';fb.textContent=`عندك ${AR(cars.w)} بيضاء و ${AR(cars.b)} سوداء — راجع العدد`;}
+});
+
+/* ---------- Q10 tap grid ---------- */
+const MON=[{l:'صفر',v:3,c:'#1e6fd9'},{l:'ربيع الأول',v:5,c:'#2e9e4f'},{l:'ربيع الآخر',v:2,c:'#f28c28'}];
+const hgt=[0,0,0];
+function drawGrid(){
+  const bg=document.getElementById('bg');
+  let y='<div class="yax">'+[0,1,2,3,4,5,6].map(v=>`<span>${AR(v)}</span>`).join('')+'</div>';
+  // RTL flex: first month renders on the right
+  const cols=MON.map((m,i)=>`<div class="colw"><div class="col" style="--c:${m.c}">${[1,2,3,4,5,6].map(k=>`<button class="cell${k<=hgt[i]?' on':''}" data-i="${i}" data-k="${k}" aria-label="${m.l}: ${AR(k)}"></button>`).join('')}</div><div class="lb">${m.l}</div></div>`).join('');
+  bg.innerHTML=cols+y;
+  bg.querySelectorAll('.cell').forEach(c=>c.addEventListener('click',()=>{const i=+c.dataset.i,k=+c.dataset.k;hgt[i]=hgt[i]===k?k-1:k;drawGrid();}));
+}
+drawGrid();
+document.getElementById('check10').addEventListener('click',()=>{
+  const fb=document.getElementById('fb10'),q=document.getElementById('q10');
+  const wrong=MON.filter((m,i)=>hgt[i]!==m.v).map(m=>m.l);
+  if(!wrong.length){q.classList.add('ok');fb.className='fb ok';fb.textContent='أحسنت! الأعمدة صحيحة';solved.add(10);setScore();}
+  else{fb.className='fb bad';fb.textContent='راجع عمود: '+wrong.join('، ');}
+});
+
+/* ---------- solution toggles for Q6/Q10 ---------- */
+document.querySelectorAll('[data-how]').forEach(b=>b.addEventListener('click',()=>{
+  const n=b.dataset.how,sol=document.getElementById('sol'+n);sol.hidden=!sol.hidden;
+  if(!sol.hidden){if(n==='6'){cars.w=4;cars.b=3;drawCars();}else{MON.forEach((m,i)=>hgt[i]=m.v);drawGrid();}}
+}));
+
+/* ---------- color mode & reset ---------- */
+function mode(bw){document.body.classList.toggle('bw',bw);document.getElementById('mBW').setAttribute('aria-pressed',bw);document.getElementById('mColor').setAttribute('aria-pressed',!bw);try{localStorage.setItem('bw',bw?'1':'0')}catch(e){}}
+document.getElementById('mBW').addEventListener('click',()=>mode(true));
+document.getElementById('mColor').addEventListener('click',()=>mode(false));
+try{if(localStorage.getItem('bw')==='1')mode(true)}catch(e){}
+
+document.getElementById('reset').addEventListener('click',()=>{
+  solved.clear();setScore();clearHL();
+  document.querySelectorAll('.q').forEach(q=>q.classList.remove('ok'));
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('right','wrong'));
+  document.querySelectorAll('.fb').forEach(f=>{f.textContent='';f.className='fb'});
+  document.querySelectorAll('.sol').forEach(s=>s.hidden=true);
+  document.querySelectorAll('[data-hidden]').forEach(c=>c.textContent='؟');
+  cars.w=cars.b=0;drawCars();hgt.fill(0);drawGrid();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+
+</body></html>
