@@ -1,0 +1,702 @@
+<title>الجمع بإعادة التجميع ٥-٥</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: lesson cockpit — sticky header with 20-min lesson clock, five timed stages as tabs, one stage visible at a time, worksheet builder as a sixth tab */
+:root{
+  --bg:#F3F8F7; --surface:#FFFFFF; --surface-2:#E7F3F1; --ink:#14302C; --muted:#5B7570;
+  --line:#CFE3DF; --teal:#00897B; --teal-ink:#FFFFFF; --teal-soft:#D5EFEB;
+  --cube:#F28C28; --cube-edge:#C0631A; --cube-new:#FFC93C; --cube-new-edge:#C99400;
+  --teamA:#2F6FB5; --teamB:#D9485F; --good:#1E9E5A; --bad:#D9485F; --sun:#FFC93C;
+  --arrow:#6F7F7C;
+  --display:"Lalezar","Tajawal",system-ui,sans-serif;
+  --body:"Tajawal",system-ui,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1C1A; --surface:#162B28; --surface-2:#1C3632; --ink:#E6F2EF; --muted:#9DB8B2;
+  --line:#2A4A45; --teal:#2BB3A3; --teal-ink:#06201C; --teal-soft:#1D3F3A;
+  --cube:#F59A3F; --cube-edge:#B85E16; --cube-new:#FFD45C; --cube-new-edge:#B98800;
+  --teamA:#5B97DB; --teamB:#EE6F84; --good:#3CC57B; --bad:#EE6F84; --sun:#FFD45C; --arrow:#A9BAB6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1C1A; --surface:#162B28; --surface-2:#1C3632; --ink:#E6F2EF; --muted:#9DB8B2;
+  --line:#2A4A45; --teal:#2BB3A3; --teal-ink:#06201C; --teal-soft:#1D3F3A;
+  --cube:#F59A3F; --cube-edge:#B85E16; --cube-new:#FFD45C; --cube-new-edge:#B98800;
+  --teamA:#5B97DB; --teamB:#EE6F84; --good:#3CC57B; --bad:#EE6F84; --sun:#FFD45C; --arrow:#A9BAB6; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;direction:rtl;text-align:right;line-height:1.6}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--teal)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--teal);color:var(--teal-ink)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px}
+.badge{font-family:var(--display);font-size:22px;background:var(--teal-ink);color:var(--teal);border-radius:12px;padding:2px 12px;line-height:1.5}
+.ttl{flex:1;min-width:0}
+.ttl h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,4vw,32px);line-height:1.2}
+.ttl small{opacity:.85;font-size:13px}
+.clock{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.14);border-radius:14px;padding:6px 10px}
+.clock b{font-family:var(--display);font-size:26px;font-weight:400;min-width:70px;text-align:center;font-variant-numeric:tabular-nums}
+.clock button{border:0;border-radius:10px;padding:6px 12px;background:var(--teal-ink);color:var(--teal);font-weight:800;font-size:14px}
+.prog{height:6px;background:rgba(0,0,0,.18)}
+.prog i{display:block;height:100%;width:0;background:var(--sun);transition:width .5s}
+
+nav.stages{display:flex;gap:8px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
+nav.stages button{flex:0 0 auto;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:8px 14px;font-weight:700;font-size:15px;display:flex;gap:8px;align-items:center}
+nav.stages button .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--surface-2);font-size:13px}
+nav.stages button .m{font-size:12px;color:var(--muted);font-weight:500}
+nav.stages button[aria-selected="true"]{border-color:var(--teal);background:var(--teal);color:var(--teal-ink)}
+nav.stages button[aria-selected="true"] .m{color:var(--teal-ink);opacity:.85}
+nav.stages button[aria-selected="true"] .n{background:var(--teal-ink);color:var(--teal)}
+
+/* horizontal addition model */
+.hz-stage{position:relative;padding:150px 8px 150px;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.hz{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:clamp(10px,3vw,34px);font-family:var(--display);font-size:clamp(52px,11vw,120px);line-height:1;font-weight:400}
+.hz .num{display:flex;direction:ltr;gap:.06em}
+.hz .d{position:relative;display:inline-block;min-width:.62em;text-align:center;border-radius:.12em;padding:.06em .04em;transition:background .3s,color .3s,transform .3s}
+.hz .t{color:var(--teamA)}.hz .o{color:var(--cube)}
+.hz .d.lit{transform:scale(1.12)}
+.hz .t.lit{background:color-mix(in srgb,var(--teamA) 16%,transparent)}
+.hz .o.lit{background:color-mix(in srgb,var(--cube) 18%,transparent)}
+.hz .slot{color:var(--muted);border:3px dashed var(--line);min-width:.75em}
+.hz .slot.t,.hz .slot.o{border-style:solid}
+.hz .slot.t{border-color:var(--teamA);color:var(--teamA)}.hz .slot.o{border-color:var(--cube);color:var(--cube)}
+.hz .slot.pop{animation:pop2 .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop2{from{transform:scale(.3)}to{transform:none}}
+.hz .op{color:var(--ink)}
+.hz .carry{position:absolute;top:-.95em;left:50%;transform:translateX(-50%);font-size:.42em;color:var(--bad);font-family:var(--body);font-weight:800;background:var(--surface);border:2px solid var(--bad);border-radius:50%;width:1.3em;height:1.3em;display:grid;place-items:center;animation:pop2 .5s}
+.hz-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.hz-svg path{fill:none;stroke-width:3.5;stroke-linecap:round}
+.hz-svg path.draw{animation:draw .7s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hz-lbl{position:absolute;transform:translate(-50%,-50%);background:var(--surface);border:2px solid currentColor;border-radius:999px;padding:2px 14px;font-weight:800;font-size:clamp(15px,2.4vw,22px);white-space:nowrap;animation:pop2 .4s}
+.hz-lbl.o{color:var(--cube)}.hz-lbl.t{color:var(--teamA)}.hz-lbl.c{color:var(--bad)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-weight:700}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;margin-left:6px}
+.dots-steps{display:flex;gap:6px}.dots-steps b{width:12px;height:12px;border-radius:50%;background:var(--line)}.dots-steps b.on{background:var(--teal)}
+.fsbtn{border:0;border-radius:10px;padding:6px 12px;background:var(--teal-ink);color:var(--teal);font-weight:800;font-size:14px}
+:fullscreen body{font-size:18px}
+:fullscreen .hz-stage{padding-block:180px}
+nav.stages .ws-tab{margin-inline-start:auto;border-style:dashed}
+
+main{padding-bottom:40px}
+section.panel{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.kicker{display:inline-block;font-family:var(--display);font-size:20px;padding:0 14px;border-radius:999px;color:#fff;background:var(--bad);line-height:1.7}
+.kicker.blue{background:var(--teamA)}.kicker.teal{background:var(--teal);color:var(--teal-ink)}.kicker.sun{background:var(--sun);color:#3a2a00}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(22px,3.4vw,30px);margin:6px 0;text-wrap:balance;line-height:1.3}
+p{margin:6px 0}
+.muted{color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:800;font-size:16px;background:var(--teal);color:var(--teal-ink)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.sun{background:var(--sun);color:#3a2a00}
+.btn:disabled{opacity:.45;cursor:default}
+.big{font-family:var(--display);font-size:clamp(40px,8vw,72px);line-height:1.1;font-weight:400}
+.cloud{background:var(--surface-2);border-radius:40px;padding:18px 24px;text-align:center;border:2px dashed var(--teal)}
+
+/* place value mat */
+.mat{display:grid;grid-template-columns:1fr 1fr;border:3px solid var(--ink);border-radius:6px;overflow:hidden;min-height:260px;background:var(--surface)}
+.mat .col{display:flex;flex-direction:column}
+.mat .hd{text-align:center;font-weight:800;font-size:20px;padding:6px;border-bottom:3px solid var(--ink)}
+.mat .ones .hd{background:#CFE9D8;color:#14302C}.mat .tens .hd{background:#F9D6AE;color:#14302C}
+.mat .ones{border-left:3px solid var(--ink)}
+.mat .body{flex:1;padding:14px;display:flex;align-items:flex-start;justify-content:center;position:relative}
+.tens .body{gap:8px;flex-wrap:wrap;align-content:flex-start}
+.frames{display:flex;flex-direction:column;gap:10px;align-items:center}
+.frame{display:grid;grid-template-columns:repeat(5,26px);gap:5px;padding:6px;border-radius:10px;border:2px dashed transparent;transition:all .3s}
+.frame.hl{border-color:var(--teal);background:var(--teal-soft)}
+.cube{width:26px;height:26px;border-radius:4px;background:var(--cube);box-shadow:inset -3px -3px 0 var(--cube-edge);transition:transform .5s,opacity .5s}
+.cube.new{background:var(--cube-new);box-shadow:inset -3px -3px 0 var(--cube-new-edge)}
+.cube.gone{transform:translateX(-80px) scale(.4);opacity:0}
+.rod{width:26px;height:210px;display:grid;grid-template-rows:repeat(10,1fr);gap:2px;padding:2px;border-radius:4px;background:var(--cube-edge)}
+.rod span{background:var(--cube);border-radius:2px}
+.rod.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+.rod.made span{background:var(--cube-new)}
+@keyframes pop{from{transform:translateX(60px) scale(.3);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:520px){.frame{grid-template-columns:repeat(5,20px);gap:4px}.cube{width:20px;height:20px}.rod{width:20px;height:170px}}
+
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.steps span{border-radius:999px;padding:4px 14px;background:var(--surface-2);color:var(--muted);font-weight:700}
+.steps span.on{background:var(--sun);color:#3a2a00}
+.say{font-size:19px;font-weight:700;min-height:2.6em}
+.picker{display:flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:12px;padding:4px}
+.picker button{width:34px;height:34px;border:0;border-radius:10px;background:var(--surface);color:var(--ink);font-size:20px;font-weight:800}
+.picker b{min-width:44px;text-align:center;font-family:var(--display);font-size:26px;font-weight:400}
+
+/* vertical sum: plus on the right */
+.vsum{display:inline-grid;grid-template-columns:repeat(3,48px);direction:ltr;font-family:var(--display);font-size:44px;line-height:1.15;text-align:center;font-weight:400}
+.vsum .carry{font-size:22px;color:var(--bad);font-family:var(--body);font-weight:800;align-self:end}
+.vsum .bar{grid-column:1/4;border-top:4px solid var(--ink);margin:2px 0}
+.vsum .ans{color:var(--teal)}
+
+/* check table */
+.tbl-wrap{overflow-x:auto}
+table.chk{width:100%;border-collapse:separate;border-spacing:0;min-width:560px;border:3px solid var(--sun);border-radius:12px;overflow:hidden}
+.chk th{background:var(--teamA);color:#fff;font-weight:800;padding:10px;text-align:center;font-size:15px}
+.chk td{border-top:2px solid var(--sun);padding:8px;text-align:center;font-size:20px;vertical-align:middle}
+.chk td+td,.chk th+th{border-right:2px solid var(--sun)}
+.chk .q{font-family:var(--display);font-size:28px;white-space:nowrap}
+.yn{display:inline-flex;gap:6px}
+.yn button{border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:4px 14px;font-size:17px;font-weight:800}
+.yn button.ok{background:var(--good);border-color:var(--good);color:#fff}
+.yn button.no{background:var(--bad);border-color:var(--bad);color:#fff;animation:shake .35s}
+@keyframes shake{25%{transform:translateX(4px)}75%{transform:translateX(-4px)}}
+.reveal{border:2px dashed var(--teal);background:transparent;color:var(--teal);border-radius:10px;padding:4px 12px;font-weight:800;font-size:16px;min-width:64px}
+.reveal.shown{border-style:solid;background:var(--teal-soft);color:var(--ink);font-family:var(--display);font-size:24px;font-weight:400}
+
+/* competition */
+.scores{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+.team{border-radius:18px;padding:12px;text-align:center;color:#fff;transition:transform .3s,box-shadow .3s;opacity:.75}
+.team.a{background:var(--teamA)}.team.b{background:var(--teamB)}
+.team.turn{opacity:1;transform:scale(1.04);box-shadow:0 0 0 4px var(--sun)}
+.team input{width:100%;background:transparent;border:0;border-bottom:2px dashed rgba(255,255,255,.5);color:#fff;font-family:var(--body);font-weight:800;font-size:18px;text-align:center}
+.team .pts{font-family:var(--display);font-size:54px;line-height:1.1}
+.ring{width:84px;height:84px;position:relative;align-self:center}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:28px;font-weight:400}
+.qbox{text-align:center;padding:20px 12px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.opts button{border:3px solid var(--line);background:var(--surface);color:var(--ink);border-radius:18px;padding:14px 6px;font-family:var(--display);font-size:clamp(30px,6vw,48px);font-weight:400}
+.opts button.ok{background:var(--good);border-color:var(--good);color:#fff}
+.opts button.no{background:var(--bad);border-color:var(--bad);color:#fff}
+.hintline{min-height:1.8em;font-weight:700;font-size:18px}
+.winner{font-family:var(--display);font-size:clamp(30px,6vw,52px)}
+canvas#conf{position:fixed;inset:0;pointer-events:none;z-index:20;width:100%;height:100%}
+
+/* worksheet builder */
+.opts-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.opts-form label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.opts-form select,.opts-form input[type=text]{font-family:inherit;font-size:16px;padding:8px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.chkline{flex-direction:row!important;align-items:center;gap:8px!important}
+.chkline input{width:20px;height:20px;accent-color:var(--teal)}
+.preview-shell{background:var(--surface-2);border-radius:18px;padding:16px;overflow:hidden}
+.paper{background:#fff;color:#000;margin:0 auto;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:700;z-index:30}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:560px){.scores{grid-template-columns:1fr 1fr}.ring{grid-column:1/3;grid-row:1;justify-self:center}.opts{gap:8px}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <span class="badge">٥-٥</span>
+    <div class="ttl"><h1>الْجَمْعُ بِإِعَادَةِ التَّجْمِيعِ</h1><small>رياضيات الصف الثاني · الفصل ٥: جمع الأعداد المكونة من رقمين · ص ١١٨–١١٩</small></div>
+    <div class="clock" aria-label="زمن الدرس">
+      <b id="clk">٢٠:٠٠</b>
+      <button id="clkBtn" type="button">ابدأ الدرس</button>
+      <button id="clkReset" type="button" title="إعادة">↺</button>
+    </div>
+    <button class="fsbtn" id="fsBtn" type="button">⛶ ملء الشاشة</button>
+  </div>
+  <div class="prog"><i id="progBar"></i></div>
+</header>
+
+<div class="wrap">
+  <nav class="stages" role="tablist" id="tabs">
+    <button role="tab" data-t="hz" aria-selected="true"><span class="n">١</span>الجمع الأفقي<span class="m">٣ د</span></button>
+    <button role="tab" data-t="warm"><span class="n">٢</span>أتهيأ<span class="m">٢ د</span></button>
+    <button role="tab" data-t="lab"><span class="n">٣</span>المعمل<span class="m">٥ د</span></button>
+    <button role="tab" data-t="check"><span class="n">٤</span>أتأكد وأتدرب<span class="m">٣ د</span></button>
+    <button role="tab" data-t="game"><span class="n">٥</span>المسابقة<span class="m">٥ د</span></button>
+    <button role="tab" data-t="close"><span class="n">٦</span>الختام<span class="m">٢ د</span></button>
+    <button role="tab" data-t="ws" class="ws-tab">ورقة العمل للطباعة</button>
+  </nav>
+
+  <main>
+  <!-- horizontal model -->
+  <section class="panel" id="p-hz">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><span class="kicker blue">نموذج تدريبي</span><h2 style="margin-top:8px">أجمع بالطريقة الأفقية</h2></div>
+        <div class="row">
+          <div class="picker" aria-label="العدد الأول"><button type="button" data-h="a-">−</button><b id="ha">٢٧</b><button type="button" data-h="a+">+</button></div>
+          <b style="font-size:26px">+</b>
+          <div class="picker" aria-label="العدد الثاني"><button type="button" data-h="b-">−</button><b id="hb">٥</b><button type="button" data-h="b+">+</button></div>
+          <button class="btn ghost" id="hzRand" type="button">مسألة عشوائية</button>
+        </div>
+      </div>
+      <div class="legend" style="margin-top:10px"><span><i style="background:var(--cube)"></i>الآحاد</span><span><i style="background:var(--teamA)"></i>العشرات</span><span><i style="background:var(--bad)"></i>العشرة الجديدة</span></div>
+    </div>
+    <div class="hz-stage" id="hzStage">
+      <svg class="hz-svg" id="hzSvg" aria-hidden="true"></svg>
+      <div class="hz" id="hz"></div>
+    </div>
+    <div class="card">
+      <div class="say" id="hzSay"></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <div class="dots-steps" id="hzDots"></div>
+        <div class="row">
+          <button class="btn ghost" id="hzPrev" type="button">السابق</button>
+          <button class="btn sun" id="hzNext" type="button">الخطوة التالية</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 warm up -->
+  <section class="panel" id="p-warm" hidden>
+    <div class="grid2">
+      <div class="card">
+        <span class="kicker">أتذكّر</span>
+        <div class="cloud" style="margin-top:12px">
+          <div class="big">١٠ آحاد = عشرة واحدة</div>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:16px;gap:20px">
+          <div class="frames"><div class="frame hl" id="warmFrame"></div></div>
+          <div style="font-size:34px;font-weight:800">←</div>
+          <div class="rod" id="warmRod" style="height:150px"></div>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="warmPlay" type="button">شاهد كيف تصبح عشرة</button></div>
+      </div>
+      <div class="card">
+        <span class="kicker blue">سؤال سريع</span>
+        <p class="muted" style="margin-top:8px">كم عشرة وكم آحادًا في العدد؟</p>
+        <div class="big" id="warmNum" style="text-align:center">٣٤</div>
+        <div class="row" style="justify-content:center;gap:16px;margin:8px 0">
+          <button class="reveal" id="warmT" type="button">عشرات؟</button>
+          <button class="reveal" id="warmO" type="button">آحاد؟</button>
+        </div>
+        <div class="row" style="justify-content:center"><button class="btn ghost" id="warmNext" type="button">عدد آخر</button></div>
+        <hr style="border:0;border-top:1px dashed var(--line);margin:16px 0">
+        <p style="font-weight:700">فكرة الدرس: أجد ناتج الجمع بإعادة التجميع.</p>
+        <p class="muted">المفردات: <mark style="background:var(--sun);color:#3a2a00;border-radius:6px;padding:0 6px">إعادة التجميع</mark> — أن أستبدل ١٠ آحاد بعشرة واحدة.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 lab -->
+  <section class="panel" id="p-lab" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><span class="kicker teal">معمل المكعبات</span><h2 id="labEq" style="margin-top:8px">أجد ناتج ٢٧ + ٥</h2></div>
+        <div class="row">
+          <div class="picker" aria-label="العدد الأول"><button type="button" data-p="a-">−</button><b id="pa">٢٧</b><button type="button" data-p="a+">+</button></div>
+          <b style="font-size:26px">+</b>
+          <div class="picker" aria-label="العدد الثاني"><button type="button" data-p="b-">−</button><b id="pb">٥</b><button type="button" data-p="b+">+</button></div>
+          <button class="btn ghost" id="labRand" type="button">مسألة عشوائية</button>
+        </div>
+      </div>
+      <div class="steps" style="margin-top:12px"><span id="s1" class="on">الخطوة ١: أمثّل</span><span id="s2">الخطوة ٢: أعيد التجميع</span><span id="s3">الخطوة ٣: أكتب</span></div>
+    </div>
+    <div class="grid2">
+      <div class="mat" id="mat">
+        <div class="col ones"><div class="hd">آحاد</div><div class="body"><div class="frames" id="onesBox"></div></div></div>
+        <div class="col tens"><div class="hd">عشرات</div><div class="body" id="tensBox"></div></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <div class="say" id="labSay">أمثّل العدد ٢٧ بالأعمدة والمكعبات، والعدد ٥ بمكعبات صفراء.</div>
+        <div id="labWrite" hidden style="text-align:center"></div>
+        <div class="row" style="margin-top:auto">
+          <button class="btn sun" id="labNext" type="button">الخطوة التالية</button>
+          <button class="btn ghost" id="labReset" type="button">من البداية</button>
+        </div>
+        <p class="muted" style="font-size:14px">عمود = عشرة · مكعب = واحد · المكعبات الصفراء هي العدد المضاف</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 check -->
+  <section class="panel" id="p-check" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><span class="kicker">أتأكّد</span> <span class="kicker blue">أتدرّب</span>
+        <h2 style="margin-top:8px">أجد ناتج الجمع، وأحدد: هل أحتاج إلى إعادة التجميع؟</h2></div>
+      </div>
+      <p class="muted">اضغط «نعم» أو «لا» لكل مسألة، ثم اكشف الآحاد والعشرات والناتج.</p>
+      <div class="tbl-wrap"><table class="chk" id="chkTbl">
+        <thead><tr><th>المسألة</th><th>أجمع الآحاد وأجمع العشرات</th><th>هل هناك ضرورة لإعادة التجميع؟</th><th>الناتج</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- 4 game -->
+  <section class="panel" id="p-game" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><span class="kicker sun">مسابقة العشرات</span><h2 style="margin-top:6px">من يجمع أسرع؟</h2></div>
+        <div class="row">
+          <label class="muted" for="gRounds">عدد الأسئلة</label>
+          <select id="gRounds" style="font-family:inherit;font-size:16px;padding:6px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink)">
+            <option value="6">٦</option><option value="8">٨</option><option value="10" selected>١٠</option><option value="12">١٢</option>
+          </select>
+          <label class="muted" for="gTime">الوقت</label>
+          <select id="gTime" style="font-family:inherit;font-size:16px;padding:6px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink)">
+            <option value="15">١٥ ث</option><option value="20" selected>٢٠ ث</option><option value="30">٣٠ ث</option>
+          </select>
+          <button class="btn" id="gStart" type="button">ابدأ المسابقة</button>
+        </div>
+      </div>
+    </div>
+    <div class="scores">
+      <div class="team a turn" id="tA"><input id="nA" value="فريق الصقور" aria-label="اسم الفريق الأول"><div class="pts" id="ptA">٠</div></div>
+      <div class="ring"><svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="ringC" cx="42" cy="42" r="36" fill="none" stroke="var(--teal)" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="0"/></svg><b id="ringT">٢٠</b></div>
+      <div class="team b" id="tB"><input id="nB" value="فريق النخيل" aria-label="اسم الفريق الثاني"><div class="pts" id="ptB">٠</div></div>
+    </div>
+    <div class="card qbox" id="gBox">
+      <div class="muted" id="gMeta">اضغط «ابدأ المسابقة» — يتناوب الفريقان على الإجابة</div>
+      <div class="big" id="gQ">؟ + ؟</div>
+      <div class="opts" id="gOpts"></div>
+      <div class="hintline" id="gHint"></div>
+      <div class="row" style="justify-content:center"><button class="btn ghost" id="gNext" type="button" hidden>السؤال التالي</button></div>
+    </div>
+  </section>
+
+  <!-- 5 close -->
+  <section class="panel" id="p-close" hidden>
+    <div class="grid2">
+      <div class="card">
+        <span class="kicker sun">أتحدّث</span>
+        <h2>متى أحتاج إلى إعادة التجميع؟</h2>
+        <button class="reveal" id="talkR" type="button" style="font-size:18px;padding:8px 16px">اكشف الإجابة</button>
+      </div>
+      <div class="card">
+        <span class="kicker blue">أكتب</span>
+        <h2>إذا أضفتُ ٨ إلى ٣٨، فهل يكون ناتج الجمع أصغر من ٤٠ أم أكبر؟</h2>
+        <button class="reveal" id="writeR" type="button" style="font-size:18px;padding:8px 16px">اكشف الإجابة</button>
+      </div>
+      <div class="card">
+        <span class="kicker teal">بطاقة الخروج</span>
+        <p style="font-weight:700">كل طالب يكتب ناتج مسألته قبل الخروج:</p>
+        <div class="big" id="exitQ" style="text-align:center">٤٧ + ٦</div>
+        <div class="row" style="justify-content:center;gap:12px"><button class="reveal" id="exitR" type="button">الناتج</button><button class="btn ghost" id="exitN" type="button">مسألة أخرى</button></div>
+      </div>
+      <div class="card">
+        <span class="kicker">نشاط منزلي</span>
+        <p style="font-weight:700;margin-top:8px">اطلب إلى طفلك أن يريك كيف يجمع ٢٥ + ٥ مستعملًا الحصى أو حبات الفاصولياء، ثم اسأله عن عدد العشرات في الناتج.</p>
+        <p class="muted">الواجب: تمارين صفحة ١١٩</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- worksheet -->
+  <section class="panel" id="p-ws" hidden>
+    <div class="card">
+      <span class="kicker teal">ورقة عمل A5 · نموذجان في ورقة A4</span>
+      <h2 style="margin-top:6px">أسئلة قابلة للطباعة</h2><p class="muted">كل ورقة A4 فيها نموذج (أ) ونموذج (ب) بأسئلة مختلفة، تُقص من المنتصف.</p>
+      <div class="opts-form" style="margin-top:10px">
+        <label>عدد الأسئلة
+          <select id="wN"><option value="4">٤</option><option value="5">٥</option><option value="6" selected>٦</option><option value="7">٧</option><option value="8">٨</option><option value="10">١٠</option><option value="12">١٢</option></select>
+        </label>
+        <label>نوع الأسئلة
+          <select id="wMix"><option value="mix" selected>مختلطة (أغلبها بإعادة تجميع)</option><option value="all">كلها بإعادة تجميع</option></select>
+        </label>
+        <label>الشعبة
+          <select id="wSec"><option value="">بدون</option><option value="ثاني ١">ثاني ١</option><option value="ثاني ٢">ثاني ٢</option></select>
+        </label>
+        
+        <label class="chkline"><input type="checkbox" id="wWrite" checked> سؤال «أكتب» في الأسفل</label>
+        <label class="chkline"><input type="checkbox" id="wKey"> عرض نموذج الإجابة</label>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost" id="wNew" type="button">أسئلة جديدة</button>
+        <button class="btn" id="wPrint" type="button">طباعة الورقة</button>
+        <button class="btn sun" id="wPrintKey" type="button">طباعة نموذج الإجابة</button>
+      </div>
+      <p class="muted" id="wNote" style="font-size:14px;margin-top:8px"></p>
+    </div>
+    <div class="preview-shell"><div class="paper" id="wPreview"></div></div>
+  </section>
+  </main>
+</div>
+<canvas id="conf" hidden></canvas>
+
+<script>
+const AR='٠١٢٣٤٥٦٧٨٩';
+const ar=n=>String(n).replace(/\d/g,d=>AR[d]);
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+
+/* ---------- sound (starts only after a tap) ---------- */
+let ac=null;
+function tone(f,d=.15,type='sine',v=.15,delay=0){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);const t=ac.currentTime+delay;o.start(t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.stop(t+d)}catch(e){}}
+const sGood=()=>{tone(660,.12,'triangle');tone(880,.18,'triangle',.15,.1)};
+const sBad=()=>tone(180,.3,'sawtooth',.08);
+const sWin=()=>[523,659,784,1046].forEach((f,i)=>tone(f,.25,'triangle',.15,i*.14));
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section.panel').forEach(p=>p.hidden=p.id!=='p-'+b.dataset.t);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(b.dataset.t==='ws')renderWS();if(b.dataset.t==='hz')requestAnimationFrame(()=>hzRender(false));
+}));
+
+/* ---------- lesson clock ---------- */
+const TOTAL=20*60;let left=TOTAL,tick=null;
+function drawClock(){const m=Math.floor(Math.abs(left)/60),s=Math.abs(left)%60;$('#clk').textContent=(left<0?'-':'')+ar(String(m).padStart(2,'0'))+':'+ar(String(s).padStart(2,'0'));$('#progBar').style.width=Math.min(100,(TOTAL-left)/TOTAL*100)+'%';$('#clk').style.color=left<=120?'var(--sun)':''}
+$('#clkBtn').onclick=()=>{if(tick){clearInterval(tick);tick=null;$('#clkBtn').textContent='استئناف'}else{tick=setInterval(()=>{left--;drawClock();if(left===0){sWin();toast('انتهى زمن الدرس')}},1000);$('#clkBtn').textContent='إيقاف مؤقت'}};
+$('#clkReset').onclick=()=>{clearInterval(tick);tick=null;left=TOTAL;drawClock();$('#clkBtn').textContent='ابدأ الدرس'};
+drawClock();
+
+/* ---------- helpers for blocks ---------- */
+const rodHTML=(cls='')=>`<div class="rod ${cls}">${'<span></span>'.repeat(10)}</div>`;
+function framesHTML(list,hlFirst){ // list of 'o'|'n'
+  let h='';for(let f=0;f<list.length;f+=10){const part=list.slice(f,f+10);h+=`<div class="frame ${hlFirst&&f===0?'hl':''}">${part.map(c=>`<div class="cube ${c==='n'?'new':''}"></div>`).join('')}</div>`}
+  return h;
+}
+
+/* ---------- warm up ---------- */
+$('#warmFrame').innerHTML='<div class="cube"></div>'.repeat(10);
+$('#warmRod').innerHTML='<span></span>'.repeat(10);$('#warmRod').style.opacity=.15;
+$('#warmPlay').onclick=()=>{const cubes=$('#warmFrame').querySelectorAll('.cube');const rod=$('#warmRod');rod.style.opacity=.15;rod.classList.remove('pop');cubes.forEach(c=>c.classList.remove('gone'));
+  cubes.forEach((c,i)=>setTimeout(()=>{c.style.transform='scale(1.2)';tone(400+i*40,.08,'triangle',.1);setTimeout(()=>c.style.transform='',150)},i*180));
+  setTimeout(()=>{cubes.forEach(c=>c.classList.add('gone'));setTimeout(()=>{rod.style.opacity=1;void rod.offsetWidth;rod.classList.add('pop');sGood()},450)},1900);
+  setTimeout(()=>cubes.forEach(c=>c.classList.remove('gone')),4200)};
+let wn=34;
+function warmSet(){wn=rnd(12,89);$('#warmNum').textContent=ar(wn);['#warmT','#warmO'].forEach((s,i)=>{const b=$(s);b.classList.remove('shown');b.textContent=i?'آحاد؟':'عشرات؟'})}
+$('#warmT').onclick=e=>{e.target.classList.add('shown');e.target.textContent=ar(Math.floor(wn/10))+' عشرات'};
+$('#warmO').onclick=e=>{e.target.classList.add('shown');e.target.textContent=ar(wn%10)+' آحاد'};
+$('#warmNext').onclick=warmSet;
+
+/* ---------- lab ---------- */
+const lab={a:27,b:5,step:1};
+function labRender(){
+  const {a,b,step}=lab;const ta=Math.floor(a/10),oa=a%10,onesSum=oa+b,need=onesSum>=10;
+  $('#pa').textContent=ar(a);$('#pb').textContent=ar(b);$('#labEq').textContent='أجد ناتج '+ar(a)+' + '+ar(b);
+  ['#s1','#s2','#s3'].forEach((s,i)=>$(s).classList.toggle('on',i+1===step));
+  let tens=ta,list=[...Array(oa).fill('o'),...Array(b).fill('n')];
+  const tb=$('#tensBox'),ob=$('#onesBox'),w=$('#labWrite');w.hidden=true;
+  if(step===1){
+    tb.innerHTML=rodHTML().repeat(tens);ob.innerHTML=framesHTML(list,false);
+    $('#labSay').textContent=`أمثّل العدد ${ar(a)} بـ ${ar(ta)} أعمدة و${ar(oa)} مكعبات، والعدد ${ar(b)} بمكعبات صفراء.`;
+    $('#labNext').textContent='الخطوة التالية';
+  }else if(step===2){
+    tb.innerHTML=rodHTML().repeat(tens);ob.innerHTML=framesHTML(list,need);
+    $('#labSay').textContent=need?`عدد الآحاد ${ar(onesSum)}، وهو ١٠ أو أكثر ← أعيد تجميع ١٠ آحاد إلى عشرة واحدة.`:`عدد الآحاد ${ar(onesSum)}، وهو أقل من ١٠ ← لا أحتاج إلى إعادة التجميع.`;
+    $('#labNext').textContent=need?'أعِد التجميع':'الخطوة التالية';
+  }else{
+    const T=Math.floor((a+b)/10),O=(a+b)%10;
+    tb.innerHTML=rodHTML().repeat(ta)+(need?rodHTML('made'):'');
+    ob.innerHTML=framesHTML(list.slice(need?10:0),false);
+    $('#labSay').textContent=`${ar(T)} عشرات و ${ar(O)} آحاد ← ${ar(a)} + ${ar(b)} = ${ar(a+b)}`;
+    w.hidden=false;
+    const A=String(a).padStart(2,' '),S=String(a+b);
+    w.innerHTML=`<div class="vsum"><span class="carry">${need?'١':''}</span><span></span><span></span>
+      <span>${ar(A[0])}</span><span>${ar(A[1])}</span><span></span>
+      <span></span><span>${ar(b)}</span><span>+</span>
+      <span class="bar"></span>
+      <span class="ans">${ar(S[0])}</span><span class="ans">${ar(S[1])}</span><span></span></div>`;
+    $('#labNext').textContent='مسألة جديدة';
+  }
+}
+$('#labNext').onclick=()=>{
+  if(lab.step===2&&(lab.a%10+lab.b)>=10){
+    const cubes=$('#onesBox .frame.hl').querySelectorAll('.cube');cubes.forEach(c=>c.classList.add('gone'));tone(500,.2,'triangle');
+    setTimeout(()=>{lab.step=3;labRender();const r=$('#tensBox .rod.made');if(r)r.classList.add('pop');sGood()},520);return;
+  }
+  if(lab.step===3){labRandom();return}
+  lab.step++;labRender();
+};
+function labRandom(){lab.b=rnd(3,9);lab.a=rnd(1,8)*10+rnd(Math.max(1,10-lab.b),9);if(Math.random()<.2)lab.a=rnd(1,8)*10+rnd(0,9-lab.b);lab.step=1;labRender()}
+$('#labRand').onclick=labRandom;
+$('#labReset').onclick=()=>{lab.step=1;labRender()};
+document.querySelectorAll('.picker button').forEach(b=>b.onclick=()=>{const p=b.dataset.p;
+  if(p==='a+')lab.a=Math.min(89,lab.a+1);if(p==='a-')lab.a=Math.max(10,lab.a-1);
+  if(p==='b+')lab.b=Math.min(9,lab.b+1);if(p==='b-')lab.b=Math.max(1,lab.b-1);
+  if(lab.a+lab.b>99)lab.a=99-lab.b;lab.step=1;labRender()});
+labRender();
+
+/* ---------- horizontal model ---------- */
+const H={a:27,b:5,k:0};
+function hzSteps(){const {a,b}=H,ao=a%10,bo=b%10,os=ao+bo,need=os>=10,bt=Math.floor(b/10),at=Math.floor(a/10),c=need?1:0,ts=at+bt+c,st=[];
+  st.push({say:`نريد أن نجمع ${ar(a)} + ${ar(b)}. الآحاد باللون البرتقالي، والعشرات باللون الأزرق. نبدأ دائمًا بالآحاد.`});
+  st.push({k:'ones',say:`أجمع الآحاد: ${ar(ao)} + ${ar(bo)} = ${ar(os)}`});
+  st.push({k:'wo',say:need?`${ar(os)} آحاد أكثر من ٩ ← أعيد التجميع: ${ar(os)} = عشرة واحدة و ${ar(os-10)} آحاد. أكتب ${ar(os-10)} في الآحاد، والعشرة الجديدة ١ تذهب إلى العشرات.`:`${ar(os)} أقل من ١٠ ← لا أحتاج إلى إعادة التجميع، أكتب ${ar(os)} في خانة الآحاد.`});
+  if(bt)st.push({k:'tens',say:`أجمع العشرات: ${ar(at)} + ${ar(bt)}${c?' + ١ (العشرة الجديدة)':''} = ${ar(ts)}`});
+  st.push({k:'wt',say:bt?`أكتب ${ar(ts)} في خانة العشرات.`:(c?`العشرات: ${ar(at)} + ١ (العشرة الجديدة) = ${ar(ts)}، أكتبها في خانة العشرات.`:`العشرات: ${ar(at)} كما هي، أكتبها في خانة العشرات.`)});
+  st.push({k:'done',say:`إذن: ${ar(a)} + ${ar(b)} = ${ar(a+b)}`});
+  return st}
+function hzRender(anim=true){
+  const {a,b}=H,st=hzSteps(),k=Math.min(H.k,st.length-1);H.k=k;const keys=st.slice(0,k+1).map(x=>x.k);const has=x=>keys.includes(x);
+  const at=Math.floor(a/10),ao=a%10,bt=Math.floor(b/10),bo=b%10,os=ao+bo,need=os>=10,s=a+b;
+  $('#ha').textContent=ar(a);$('#hb').textContent=ar(b);
+  const lit=(x)=>has(x)&&!has('done')?'lit':'';
+  $('#hz').innerHTML=`<span class="num"><span class="d t ${lit('tens')} ${has('wt')&&!bt&&!has('done')?'lit':''}" id="hAT">${ar(at)}</span><span class="d o ${has('ones')&&!has('wo')?'lit':''}" id="hAO">${ar(ao)}</span></span>
+   <span class="op">+</span>
+   <span class="num">${bt?`<span class="d t ${has('tens')&&!has('wt')?'lit':''}" id="hBT">${ar(bt)}</span>`:''}<span class="d o ${has('ones')&&!has('wo')?'lit':''}" id="hBO">${ar(bo)}</span></span>
+   <span class="op">=</span>
+   <span class="num"><span class="d slot ${has('wt')?'t':''} ${H.k===st.findIndex(x=>x.k==='wt')&&anim?'pop':''}" id="hRT">${has('wt')?ar(Math.floor(s/10)):'؟'}${has('wo')&&need?'<span class="carry">١</span>':''}</span><span class="d slot ${has('wo')?'o':''} ${H.k===st.findIndex(x=>x.k==='wo')&&anim?'pop':''}" id="hRO">${has('wo')?ar(s%10):'؟'}</span></span>`;
+  $('#hzSay').textContent=st[k].say;
+  $('#hzDots').innerHTML=st.map((_,i)=>`<b class="${i<=k?'on':''}"></b>`).join('');
+  $('#hzPrev').disabled=k===0;$('#hzNext').textContent=k===st.length-1?'مسألة جديدة':'الخطوة التالية';
+  requestAnimationFrame(()=>hzDraw(keys,anim,st[k].k));
+  if(anim&&st[k].k==='done')sWin();else if(anim&&k>0)tone(560,.12,'triangle',.1);
+}
+function hzDraw(keys,anim,cur){
+  const stg=$('#hzStage'),svg=$('#hzSvg');stg.querySelectorAll('.hz-lbl').forEach(x=>x.remove());
+  const R=stg.getBoundingClientRect();svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
+  const pt=(id,side)=>{const e=$(id);if(!e)return null;let x=e.offsetLeft,y=e.offsetTop,o=e.offsetParent;while(o&&o!==stg){x+=o.offsetLeft;y+=o.offsetTop;o=o.offsetParent}return {x:x+e.offsetWidth/2,y:side==='up'?y-20:y+e.offsetHeight+20}};
+  const {a,b}=H,ao=a%10,bo=b%10,os=ao+bo,bt=Math.floor(b/10),at=Math.floor(a/10),need=os>=10;
+  let h='<defs>'+[['o','var(--arrow)'],['t','var(--arrow)'],['c','var(--arrow)']].map(([n,c])=>`<marker id="ar${n}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:${c};stroke:none"/></marker>`).join('')+'</defs>';
+  const lbls=[];
+  const arc=(p,q,side,cls,col,isNew,lbl,dash)=>{if(!p||!q)return;const d=Math.abs(p.x-q.x),hh=Math.min(120,Math.max(50,d*.38))*(side==='up'?-1:1),mx=(p.x+q.x)/2,my=p.y+hh;
+    const len=d*1.4+Math.abs(hh)*2;
+    h+=`<path d="M${p.x},${p.y} Q${mx},${my} ${q.x},${q.y}" style="stroke:${col};${dash?'stroke-dasharray:8 8':''}${isNew&&anim&&!dash?`;stroke-dasharray:${len};stroke-dashoffset:${len}`:''}" class="${isNew&&anim&&!dash?'draw':''}" marker-end="url(#ar${cls})"/>`;
+    if(lbl)lbls.push({x:mx,y:p.y+hh/2+(side==='up'?-14:14),t:lbl,cls})};
+  const has=x=>keys.includes(x);
+  if(has('ones'))arc(pt('#hAO','up'),pt('#hBO','up'),'up','o','var(--arrow)',cur==='ones',`${ar(ao)} + ${ar(bo)} = ${ar(os)}`);
+  if(has('wo'))arc(pt('#hBO','up'),pt('#hRO','up'),'up','o','var(--arrow)',cur==='wo',need?`${ar(os)} = ١٠ + ${ar(os-10)}`:'');
+  if(has('wo')&&need){const p=pt('#hRO','up'),q=pt('#hRT','up');if(p&&q)arc({x:p.x-6,y:p.y-30},{x:q.x+4,y:q.y-34},'up','c','var(--arrow)',cur==='wo','',true)}
+  if(has('tens')&&bt)arc(pt('#hAT','down'),pt('#hBT','down'),'down','t','var(--arrow)',cur==='tens',`${ar(at)} + ${ar(bt)}${need?' + ١':''} = ${ar(at+bt+(need?1:0))}`);
+  if(has('wt'))arc(pt(bt?'#hBT':'#hAT','down'),pt('#hRT','down'),'down','t','var(--arrow)',cur==='wt',bt?'':(need?`${ar(at)} + ١ = ${ar(at+1)}`:''));
+  svg.innerHTML=h;
+  lbls.forEach(l=>{const d=document.createElement('div');d.className='hz-lbl '+l.cls;d.textContent=l.t;d.style.left=l.x+'px';d.style.top=l.y+'px';stg.appendChild(d)});
+}
+function hzRand(){H.b=Math.random()<.7?rnd(3,9):rnd(1,4)*10+rnd(3,9);H.a=rnd(1,9-Math.floor(H.b/10)-1)*10+rnd(Math.max(1,10-H.b%10),9);if(H.a+H.b>99)H.a=99-H.b;H.k=0;hzRender()}
+$('#hzNext').onclick=()=>{if(H.k>=hzSteps().length-1){hzRand();return}H.k++;hzRender()};
+$('#hzPrev').onclick=()=>{if(H.k>0){H.k--;hzRender(false)}};
+$('#hzRand').onclick=hzRand;
+document.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const p=b.dataset.h;
+  if(p==='a+')H.a=Math.min(99-H.b,H.a+1);if(p==='a-')H.a=Math.max(10,H.a-1);
+  if(p==='b+')H.b=Math.min(99-H.a,H.b+1);if(p==='b-')H.b=Math.max(1,H.b-1);H.k=0;hzRender(false)});
+addEventListener('resize',()=>{if(!$('#p-hz').hidden)hzDraw(hzSteps().slice(0,H.k+1).map(x=>x.k),false,'')});
+document.addEventListener('keydown',e=>{if($('#p-hz').hidden||e.target.closest('input,select'))return;if(e.key==='ArrowLeft'||e.key===' '){e.preventDefault();$('#hzNext').click()}if(e.key==='ArrowRight')$('#hzPrev').click()});
+
+/* ---------- fullscreen ---------- */
+function fsLabel(){$('#fsBtn').textContent=document.fullscreenElement?'✕ خروج من ملء الشاشة':'⛶ ملء الشاشة'}
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else{const el=document.documentElement;if(el.requestFullscreen)await el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();else throw 0}}catch(e){toast('ملء الشاشة غير متاح هنا — افتح الصفحة في المتصفح على جهاز العرض')}};
+document.addEventListener('fullscreenchange',()=>{fsLabel();setTimeout(()=>{if(!$('#p-hz').hidden)hzDraw(hzSteps().slice(0,H.k+1).map(x=>x.k),false,'');if(!$('#p-ws').hidden)fitPreview()},250)});
+
+/* ---------- check table (book items 1-9) ---------- */
+const book=[[15,8,'١'],[23,6,'٢'],[76,4,'٤'],[32,6,'٥'],[59,5,'٦'],[13,9,'٧'],[31,8,'٨'],[25,6,'٩']];
+$('#chkTbl tbody').innerHTML=book.map(([a,b,n],i)=>{const o=a%10+b,s=a+b;return `<tr>
+  <td><span class="muted" style="font-size:14px">(${n})</span> <span class="q">${ar(a)} + ${ar(b)}</span></td>
+  <td><button class="reveal" type="button" data-r="${ar(o)} آحاد · ${ar(Math.floor(a/10))} عشرات">اكشف</button></td>
+  <td><div class="yn" data-need="${o>=10?1:0}"><button type="button" data-v="1">نعم</button><button type="button" data-v="0">لا</button></div></td>
+  <td><button class="reveal" type="button" data-r="${ar(s)}">؟</button></td></tr>`}).join('');
+$('#chkTbl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.classList.contains('reveal')){b.classList.add('shown');b.textContent=b.dataset.r;return}
+  const g=b.parentElement;const ok=g.dataset.need===b.dataset.v;g.querySelectorAll('button').forEach(x=>x.className='');b.className=ok?'ok':'no';ok?sGood():sBad()});
+
+/* ---------- question generator ---------- */
+function makeQ(regroup=true){let a,b;
+  if(regroup){b=rnd(2,9);const ones=rnd(Math.max(1,10-b),9);a=rnd(1,8)*10+ones}
+  else{b=rnd(1,8);a=rnd(1,8)*10+rnd(0,9-b)}
+  return {a,b,s:a+b,need:(a%10+b)>=10}}
+
+/* ---------- competition ---------- */
+const G={on:false,q:null,i:0,n:10,turn:0,pts:[0,0],t:20,timer:null,locked:false};
+const C=226.2;
+function gRing(){const T=+$('#gTime').value;$('#ringT').textContent=ar(G.t);$('#ringC').style.strokeDashoffset=C*(1-G.t/T);$('#ringC').style.stroke=G.t<=5?'var(--bad)':'var(--teal)'}
+function gTurnUI(){$('#tA').classList.toggle('turn',G.turn===0);$('#tB').classList.toggle('turn',G.turn===1);$('#ptA').textContent=ar(G.pts[0]);$('#ptB').textContent=ar(G.pts[1])}
+function gAsk(){
+  clearInterval(G.timer);G.locked=false;G.q=makeQ(Math.random()<.8);const {a,b,s}=G.q;
+  const name=G.turn?$('#nB').value:$('#nA').value;
+  $('#gMeta').textContent=`السؤال ${ar(G.i+1)} من ${ar(G.n)} · دور ${name}`;
+  $('#gQ').textContent=`${ar(a)} + ${ar(b)} = ؟`;$('#gHint').textContent='';$('#gNext').hidden=true;
+  const wrong=new Set();const cands=G.q.need?[s-10,s+1,s-1,s+10]:[s+10,s+1,s-1];for(const c of shuffle(cands)){if(c>0&&c!==s&&wrong.size<2)wrong.add(c)}
+  const opts=shuffle([s,...wrong]);
+  $('#gOpts').innerHTML=opts.map(v=>`<button type="button" data-v="${v}">${ar(v)}</button>`).join('');
+  G.t=+$('#gTime').value;gRing();gTurnUI();
+  G.timer=setInterval(()=>{G.t--;gRing();if(G.t<=3&&G.t>0)tone(900,.06,'square',.06);if(G.t<=0){clearInterval(G.timer);gAnswer(null)}},1000);
+}
+function gAnswer(v){if(G.locked)return;G.locked=true;clearInterval(G.timer);const {s,need,a,b}=G.q;
+  $('#gOpts').querySelectorAll('button').forEach(x=>{if(+x.dataset.v===s)x.classList.add('ok');else if(+x.dataset.v===v)x.classList.add('no')});
+  if(v===s){G.pts[G.turn]++;sGood();$('#gHint').textContent='إجابة صحيحة! +١'}
+  else{sBad();$('#gHint').textContent=(v===null?'انتهى الوقت! ':'')+(need?`الآحاد ${ar(a%10)} + ${ar(b)} = ${ar(a%10+b)} ← نعيد التجميع، والناتج ${ar(s)}`:`الناتج ${ar(s)}`)}
+  gTurnUI();G.i++;
+  if(G.i>=G.n){setTimeout(gEnd,1200)}else{$('#gNext').hidden=false;$('#gNext').focus()}
+}
+function gEnd(){G.on=false;const [x,y]=G.pts;const w=x===y?'تعادل! أحسن الفريقان':(x>y?$('#nA').value:$('#nB').value)+' هو الفائز';
+  $('#gMeta').textContent='انتهت المسابقة';$('#gQ').innerHTML=`<span class="winner">${w}</span>`;$('#gOpts').innerHTML='';$('#gHint').textContent=`${$('#nA').value}: ${ar(x)} — ${$('#nB').value}: ${ar(y)}`;$('#gNext').hidden=true;$('#gStart').textContent='مسابقة جديدة';sWin();confetti()}
+$('#gOpts').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&G.on)gAnswer(+b.dataset.v)});
+$('#gNext').onclick=()=>{G.turn=1-G.turn;gAsk()};
+$('#gStart').onclick=()=>{G.on=true;G.i=0;G.pts=[0,0];G.turn=0;G.n=+$('#gRounds').value;$('#gStart').textContent='إعادة البدء';gAsk()};
+gRing();
+function confetti(){const cv=$('#conf');cv.hidden=false;const ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#F28C28','#FFC93C','#00897B','#2F6FB5','#D9485F'];const P=Array.from({length:140},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,v:2+Math.random()*4,s:6+Math.random()*6,c:cols[rnd(0,4)],r:Math.random()*6}));
+  let f=0;(function loop(){ctx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.y+=p.v;p.r+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);ctx.restore()});if(++f<200)requestAnimationFrame(loop);else cv.hidden=true})()}
+
+/* ---------- close ---------- */
+$('#talkR').onclick=e=>{e.target.classList.add('shown');e.target.style.fontFamily='var(--body)';e.target.style.fontSize='19px';e.target.style.fontWeight='800';e.target.textContent='عندما يكون مجموع الآحاد ١٠ أو أكثر، أعيد تجميع ١٠ آحاد إلى عشرة واحدة.'};
+$('#writeR').onclick=e=>{e.target.classList.add('shown');e.target.style.fontFamily='var(--body)';e.target.style.fontSize='19px';e.target.style.fontWeight='800';e.target.textContent='أكبر من ٤٠؛ لأن ٣٨ + ٨ = ٤٦ (٨ + ٨ = ١٦ آحاد ← عشرة و ٦ آحاد).'};
+let ex=makeQ();
+function exSet(){ex=makeQ();$('#exitQ').textContent=ar(ex.a)+' + '+ar(ex.b);const r=$('#exitR');r.classList.remove('shown');r.textContent='الناتج'}
+$('#exitR').onclick=e=>{e.target.classList.add('shown');e.target.textContent=ar(ex.s)};$('#exitN').onclick=exSet;exSet();
+
+/* ---------- worksheet ---------- */
+let M=[];
+function hijri(){try{const p=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(new Date());const g=t=>(p.find(x=>x.type===t)||{}).value||'';return g('day')+'‏/‏'+g('month')+'‏/‏'+g('year')+' هـ'}catch(e){return '‏/‏‏/‏١٤٤٨ هـ'}}
+function genSet(n,all,seen){let qs=[];const noCount=all?0:Math.max(1,Math.round(n*.25));
+  while(qs.length<n){const q=makeQ(qs.length>=noCount);const k=q.a+'+'+q.b;if(!seen.has(k)){seen.add(k);qs.push(q)}}
+  const t=rnd(2,7)*10;return {qs:shuffle(qs),wq:{a:t-rnd(1,4),b:rnd(6,9)}}}
+function genWS(){const n=+$('#wN').value,all=$('#wMix').value==='all';const seen=new Set();M=[genSet(n,all,seen),genSet(n,all,seen)];
+  while(M[1].wq.a===M[0].wq.a)M[1].wq={a:rnd(2,7)*10-rnd(1,4),b:rnd(6,9)}}
+function sheetHTML(key,mi){
+  const WS=M[mi].qs,WQ=M[mi].wq,lbl=mi?'ب':'أ';
+  const n=WS.length,sec=$('#wSec').value,small=n>8;
+  const rows=WS.map((q,i)=>`<tr><td class="m">${ar(i+1)}</td><td class="q">${ar(q.a)} + ${ar(q.b)}</td>
+    <td>${key?`<b>${ar(q.a%10+q.b)}</b>`:'<span class="dots"></span>'} آحاد ${key?`<b>${ar(Math.floor(q.a/10))}</b>`:'<span class="dots"></span>'} عشرات</td>
+    <td><span class="${key&&q.need?'circ':''}">نعم</span><span class="sp"></span><span class="${key&&!q.need?'circ':''}">لا</span></td>
+    <td class="q">${key?ar(q.s):''}</td></tr>`).join('');
+  const s=WQ.a+WQ.b,ref=Math.ceil((WQ.a+1)/10)*10;
+  const write=$('#wWrite').checked?`<div class="wq"><b>أكتب:</b> إذا أضفتُ ${ar(WQ.b)} إلى ${ar(WQ.a)}، فهل يكون ناتج الجمع أصغر من ${ar(ref)} أم أكبر؟ أوضّح إجابتي.
+    <div class="ln">${key?`أكبر من ${ar(ref)}؛ لأن ${ar(WQ.a)} + ${ar(WQ.b)} = ${ar(s)}`:''}</div>${key?'':'<div class="ln"></div>'}</div>`:'';
+  return `<div class="ws ${small?'small':''}">
+  <div class="hd"><div class="r">المملكة العربية السعودية<br>وزارة التعليم<br>الإدارة العامة للتعليم بمنطقة الرياض<br>ابتدائية هشام بن عبدالملك</div>
+  <div class="c"><div class="tt">${key?'إجابة النموذج':'ورقة عمل'} (${lbl})</div><div class="ls">الدرس ٥-٥: الجمع بإعادة التجميع</div></div>
+  <div class="l">المادة: رياضيات<br>الصف: الثاني ${sec}<br>التاريخ: ${hijri()}</div></div>
+  <div class="nm"><span>اسم الطالب: ...............................................</span><span>الدرجة: <span class="box"></span> / ${ar(n)}</span></div>
+  <div class="ins">أجد ناتج الجمع مستعملًا الآحاد والعشرات، وأحوّط الإجابة:</div>
+  <table><thead><tr><th class="m">م</th><th>المسألة</th><th>أجمع الآحاد، وأجمع العشرات</th><th>هل أحتاج لإعادة التجميع؟</th><th>الناتج</th></tr></thead><tbody>${rows}</tbody></table>
+  ${write}
+  <div class="ft"><span>تذكّر: ١٠ آحاد = عشرة واحدة</span><span>توقيع ولي الأمر: ..................</span></div></div>`}
+const WS_CSS=`.ws{direction:rtl;text-align:right;font-family:"Tajawal",Arial,sans-serif;color:#000;width:148mm;height:209mm;padding:8mm 8mm 6mm;box-sizing:border-box;display:flex;flex-direction:column;gap:2.4mm;font-size:10.5pt;line-height:1.45;overflow:hidden;background:#fff}
+.ws .hd{display:grid;grid-template-columns:1fr auto 1fr;gap:3mm;align-items:center;border-bottom:1.6pt solid #000;padding-bottom:2mm;font-size:8.5pt;font-weight:700}
+.ws .hd .l{text-align:left}.ws .hd .c{text-align:center}
+.ws .tt{font-size:15pt;font-weight:800;border:1.4pt solid #000;border-radius:3mm;padding:0 5mm}
+.ws .ls{font-size:9.5pt;font-weight:800;margin-top:1mm}
+.ws .nm{display:flex;justify-content:space-between;font-weight:700;align-items:center}
+.ws .box{display:inline-block;width:10mm;height:6mm;border:1pt solid #000;vertical-align:middle;border-radius:1mm}
+.ws .ins{font-weight:800;background:#eee;padding:1mm 3mm;border-radius:2mm}
+.ws table{width:100%;border-collapse:collapse;table-layout:fixed}
+.ws th,.ws td{border:1pt solid #000;text-align:center;vertical-align:middle;padding:1mm}
+.ws th{background:#e2e2e2;font-size:8.5pt;font-weight:800;line-height:1.25}
+.ws th.m,.ws td.m{width:7mm}
+.ws th:nth-child(2){width:24mm}.ws th:nth-child(3){width:46mm}.ws th:nth-child(5){width:18mm}
+.ws td{height:11.5mm;font-size:10.5pt;font-weight:700}
+.ws td.q{font-size:15pt;font-weight:800;white-space:nowrap}
+.ws .dots{display:inline-block;width:9mm;border-bottom:1pt dotted #000;margin:0 1mm}
+.ws .sp{display:inline-block;width:6mm}
+.ws .circ{border:1.3pt solid #000;border-radius:50%;padding:0 2mm}
+.ws.small td{height:9mm;font-size:9.5pt}.ws.small td.q{font-size:13pt}
+.ws .wq{font-weight:700;font-size:10pt}
+.ws .ln{border-bottom:1pt dotted #000;height:7mm;font-weight:800}
+.ws .ft{margin-top:auto;display:flex;justify-content:space-between;font-size:8.5pt;font-weight:700;border-top:1pt solid #000;padding-top:1.5mm}`;
+const PG_CSS=`.pg2{display:flex;width:297mm;height:209mm;background:#fff}.pg2 .ws+.ws{border-right:1pt dashed #888}`;
+function pageHTML(key){return `<div class="pg2">${sheetHTML(key,0)}${sheetHTML(key,1)}</div>`}
+function fitPreview(){const box=$('#wPreview');const w=box.parentElement.clientWidth-32;box.style.zoom=Math.min(1,w/1123)}
+function renderWS(){if(!M.length)genWS();$('#wPreview').innerHTML=`<style>${WS_CSS}${PG_CSS}</style>`+pageHTML($('#wKey').checked);$('#wPreview').style.width='297mm';fitPreview()}
+addEventListener('resize',()=>{if(!$('#p-ws').hidden)fitPreview()});
+['#wN','#wMix'].forEach(s=>$(s).addEventListener('change',()=>{genWS();renderWS()}));
+['#wSec','#wKey','#wWrite'].forEach(s=>$(s).addEventListener('change',renderWS));
+$('#wNew').onclick=()=>{genWS();renderWS();toast('أسئلة جديدة')};
+function printDoc(key){const body=pageHTML(key);
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${key?'نموذج إجابة':'ورقة عمل'} - الدرس ٥-٥</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
+<style>@page{size:A4 landscape;margin:0}html,body{margin:0;background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+${PG_CSS}${WS_CSS}</style></head>
+<body>${body}<script>window.onload=function(){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})}<\/script></body></html>`}
+let dl=null;
+(async()=>{try{if(window.claude&&window.claude.use){dl=await window.claude.use('downloads')}}catch(e){}
+  $('#wNote').textContent=dl?'يُحفظ ملف الطباعة على جهازك، افتحه وسيظهر مربع الطباعة مباشرة (اختر الطابعة أو حفظ PDF).':(window.claude?'':'تفتح نافذة الطباعة مباشرة — اضبط الهوامش على «بلا» إن ظهرت.')})();
+async function doPrint(key){const html=printDoc(key);
+  if(window.claude){ if(!dl){toast('الطباعة غير متاحة في هذا العرض');return}
+    try{await dl.save({filename:key?'نموذج-إجابة-٥-٥.html':'ورقة-عمل-٥-٥.html',data:new Blob([html],{type:'text/html'})});toast('تم حفظ ملف الطباعة')}catch(e){if(e&&e.code!=='declined')toast('تعذّر حفظ الملف')}
+    return}
+  const f=document.createElement('iframe');f.style.cssText='position:fixed;width:0;height:0;border:0;left:-9999px';document.body.appendChild(f);
+  f.srcdoc=html.replace(/<script>[\s\S]*?<\/script>/,'');f.onload=()=>{const go=()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){}setTimeout(()=>f.remove(),4000)};(f.contentDocument.fonts?f.contentDocument.fonts.ready:Promise.resolve()).then(()=>setTimeout(go,300))}}
+$('#wPrint').onclick=()=>doPrint(false);
+$('#wPrintKey').onclick=()=>doPrint(true);
+genWS();
+requestAnimationFrame(()=>hzRender(false));
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{if(!$('#p-hz').hidden)hzRender(false)});
+</script>
