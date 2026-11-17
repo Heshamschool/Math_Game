@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>درس ٥-٨ تقدير ناتج الجمع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&family=Noto+Naskh+Arabic:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#00A99D;--teal-d:#00796B;--teal-l:#E0F5F3;--orange:#F28C28;--red:#E53935;--blue:#1E63C6;--gold:#F5B700;--green:#43A047;--ink:#1F2A37;--muted:#5B6B7B;--bg:#F4F8F8}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:clamp(16px,1.35vw,34px)}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;word-spacing:1px}
+.num{font-family:'Noto Naskh Arabic',serif;font-weight:700}
+button{font-family:inherit;cursor:pointer;border:none}
+
+/* header */
+header{background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff;padding:.45rem 1rem;display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.badge{background:#fff;color:var(--blue);border-radius:.7rem;padding:.15rem .7rem;font-size:1.5rem}
+.htitle{flex:1}
+.htitle small{display:block;opacity:.85;font-size:.75rem}
+.htitle h1{font-size:1.5rem;font-weight:900}
+.clock{display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.15);padding:.25rem .5rem;border-radius:.7rem}
+.clock .t{font-size:1.5rem;min-width:4.2rem;text-align:center;direction:ltr}
+.clock button,.hbtn{background:#fff;color:var(--teal-d);border-radius:.5rem;padding:.3rem .6rem;font-weight:800;font-size:.85rem}
+.hbtn{background:rgba(255,255,255,.2);color:#fff;font-size:1rem}
+
+/* tabs */
+nav{display:flex;gap:.4rem;padding:.4rem .8rem 0;flex-shrink:0}
+nav button{flex:1;background:#fff;border-radius:.8rem .8rem 0 0;padding:.4rem;font-size:1rem;font-weight:800;color:var(--muted);border-bottom:.22rem solid transparent}
+nav button .m{font-size:.7rem;font-weight:600;opacity:.8;margin-right:.3rem}
+nav button.active{color:var(--teal-d);border-bottom-color:var(--teal)}
+nav button.now{box-shadow:inset 0 0 0 2px var(--orange)}
+.progress{height:.3rem;background:#dde7e7;display:flex;margin:0 .8rem;flex-shrink:0}
+.progress span{display:block;border-left:2px solid #fff}
+.progress div{height:100%;background:var(--orange);width:0;transition:width 1s linear}
+
+main{flex:1;min-height:0;padding:0 .8rem .8rem;display:flex}
+section{display:none;flex:1;background:#fff;border-radius:0 0 1.2rem 1.2rem;padding:.9rem 1.2rem;overflow:auto;flex-direction:column;gap:.7rem;animation:fade .3s}
+section.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.stitle{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.pill{color:#FFD54F;font-weight:900;padding:.25rem 1rem;border-radius:2rem;font-size:1.2rem;background:linear-gradient(135deg,#E53935,#B71C1C);box-shadow:0 3px 0 #8e1515}
+.pill.blue{background:linear-gradient(135deg,#2B7BE4,#1550A8);box-shadow:0 3px 0 #0d3b80}
+.pill.green{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;box-shadow:0 3px 0 #1b5e20}
+.stitle h2{font-size:1.5rem;font-weight:900}
+.stitle .goal{margin-right:auto;color:var(--muted);font-size:.9rem;font-weight:700}
+
+.btn{background:var(--teal);color:#fff;font-weight:900;font-size:1.15rem;padding:.55rem 1.2rem;border-radius:.8rem;box-shadow:0 .25rem 0 var(--teal-d)}
+.btn:active{transform:translateY(3px);box-shadow:none}
+.btn.o{background:var(--orange);box-shadow:0 .25rem 0 #b9600f}
+.btn.g{background:#fff;color:var(--teal-d);border:2px solid var(--teal);box-shadow:0 .25rem 0 #cfe9e6}
+.btn.red{background:var(--red);box-shadow:0 .25rem 0 #9b1b1b}
+.btn.blue{background:var(--blue);box-shadow:0 .25rem 0 #0d3b80}
+.btn.gray{background:#90A4AE;box-shadow:0 .25rem 0 #607D8B}
+.btn:disabled{opacity:.4;pointer-events:none}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.center{justify-content:center}
+
+/* number line */
+.nl{width:100%;max-width:62rem;direction:ltr}
+.nl svg{width:100%;height:auto;overflow:visible}
+.nl .lbl{font-family:'Noto Naskh Arabic';font-weight:700;font-size:38px;text-anchor:middle;fill:#263238}
+.nl .lbl.ten{fill:var(--red);font-size:44px}
+.nl .arrowp{fill:none;stroke:var(--green);stroke-width:7;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:draw .9s .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.nl .tgt{animation:pulse 1s 1s infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{to{transform:scale(1.35)}}
+.nl .fadein{opacity:0;animation:fi .4s 1s forwards}
+@keyframes fi{to{opacity:1}}
+
+/* vertical problem */
+.vp{display:inline-grid;grid-template-columns:1.1em 1.1em .9em;direction:ltr;font-size:min(10vh,6rem);line-height:1.15}
+.vp .c{text-align:center;font-family:'Noto Naskh Arabic',serif;font-weight:700}
+.vp .sign{font-family:'Tajawal';font-weight:900;text-align:center}
+.vp .line{grid-column:1/4;border-top:.07em solid #263238;margin:.03em 0}
+.vp .r{color:var(--red)}
+.vp .q{color:#B0BEC5}
+.vp .pop{display:inline-block;animation:pop .45s}
+.vp .hl{background:#FFF59D;border-radius:.15em}
+.vp.sm{font-size:min(8vh,4.5rem)}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.estrow{display:flex;align-items:center;justify-content:center;gap:1.2rem;direction:rtl}
+.arrows{display:flex;flex-direction:column;gap:min(5vh,2.4rem);padding-top:min(2vh,1rem)}
+.arr{background:#FFE9A8;color:#6d4c00;font-weight:900;font-size:1.05rem;padding:.35rem 1.4rem .35rem .8rem;clip-path:polygon(18% 0,100% 0,100% 100%,18% 100%,0 50%);opacity:.25;transition:.4s}
+.arr.on{opacity:1}
+.box{border:3px solid #E3ECEC;border-radius:1rem;padding:.6rem 1rem;background:#fff}
+.box.orig{background:#FAFCFC}
+.box.rnd{border-color:var(--green);background:#F1F8E9}
+.box h4{text-align:center;font-size:1rem;color:var(--muted)}
+
+/* stepper */
+.stage{flex:1;display:grid;grid-template-columns:1fr 1.1fr;grid-template-rows:1fr auto;gap:.8rem;min-height:0}
+.linebox{grid-column:1/-1;display:flex;justify-content:center;align-items:center;min-height:min(22vh,11rem);border:2px solid #E3ECEC;border-radius:1.1rem;padding:.3rem 1rem}
+.linebox .nl{max-width:58rem}
+.panel{border:2px solid #E3ECEC;border-radius:1.1rem;padding:.8rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem}
+.msg{background:var(--teal-l);border-right:.4rem solid var(--teal);border-radius:.8rem;padding:.7rem 1rem;font-size:1.55rem;font-weight:800;line-height:1.7;width:100%;min-height:5.6rem}
+.msg b{color:var(--red)}
+.msg .ok{color:var(--green)}
+.exact{font-size:1.1rem;color:var(--muted);font-weight:800}
+.qnum{background:var(--blue);color:#fff;border-radius:.4rem;padding:0 .7rem;font-size:1.4rem}
+.cloud{background:#E3F2FD;border-radius:2rem;padding:.6rem 1.4rem;font-size:1.25rem;font-weight:800;color:#0D47A1;line-height:1.8;text-align:center;box-shadow:0 4px 0 #bbdefb}
+.cloud b{color:#283593}
+.dots{display:flex;gap:.4rem}
+.dots span{width:2rem;height:2rem;border-radius:50%;background:#E3ECEC;display:flex;align-items:center;justify-content:center;font-family:'Noto Naskh Arabic';color:var(--muted)}
+.dots span.on{background:var(--teal);color:#fff}
+
+/* warmup */
+.wu{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
+.wu .nl{max-width:52rem}
+.bignum{font-size:min(15vh,9rem);line-height:1;color:var(--blue);background:#fff;border:4px solid var(--teal);border-radius:1.5rem;padding:.05em .5em;box-shadow:0 .5rem 0 #b9e2de}
+.choice{font-size:2.6rem;padding:.3rem 2rem;min-width:9rem}
+.choice.right{background:var(--green);box-shadow:0 .25rem 0 #1b5e20}
+.choice.wrong{background:var(--red);box-shadow:0 .25rem 0 #9b1b1b;animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{font-size:1.6rem;font-weight:900;min-height:2.4rem;text-align:center}
+
+/* competition */
+.setup{margin:auto;width:min(48rem,100%);display:flex;flex-direction:column;gap:.8rem}
+.hero{text-align:center}
+.hero .tr{font-size:4rem;animation:float 2.5s ease-in-out infinite}
+.hero h2{font-size:2.3rem;font-weight:900;color:var(--teal-d)}
+.hero p{color:var(--muted);font-weight:700;font-size:1.05rem}
+@keyframes float{50%{transform:translateY(-10px)}}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.tcard{border-radius:1rem;padding:.7rem;color:#fff;display:flex;flex-direction:column;gap:.4rem;font-weight:800}
+.tcard.a{background:linear-gradient(135deg,#EF5350,#C62828)}.tcard.b{background:linear-gradient(135deg,#42A5F5,#1565C0)}
+.tcard input{font-family:inherit;font-size:1.3rem;font-weight:800;border:none;border-radius:.5rem;padding:.35rem;text-align:center}
+.opt{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;background:#F6FAFA;padding:.6rem;border-radius:.8rem}
+.opt label{font-weight:900;min-width:7rem;font-size:1.05rem}
+.chip{background:#fff;border:2px solid #cfe0e0;border-radius:.6rem;padding:.3rem .8rem;font-weight:800;font-size:1rem;color:var(--muted)}
+.chip.on{border-color:var(--teal);background:var(--teal);color:#fff}
+.board{display:grid;grid-template-columns:1fr auto 1fr;gap:.7rem}
+.score{border-radius:1rem;color:#fff;padding:.4rem 1rem;display:flex;align-items:center;justify-content:space-between;position:relative;transition:.3s}
+.score.a{background:linear-gradient(135deg,#EF5350,#C62828)}.score.b{background:linear-gradient(135deg,#42A5F5,#1565C0)}
+.score .nm{font-size:1.4rem;font-weight:900}.score .pt{font-size:2.8rem;line-height:1.1}
+.score.bump{transform:scale(1.05)}
+.floatpt{position:absolute;top:-.5rem;left:45%;font-family:'Noto Naskh Arabic';font-size:2.4rem;color:#FFD54F;text-shadow:0 2px 6px rgba(0,0,0,.4);animation:up 1.2s forwards}
+@keyframes up{to{transform:translateY(-4rem);opacity:0}}
+.rinfo{background:#263238;color:#fff;border-radius:1rem;padding:.2rem 1rem;text-align:center}
+.rinfo small{font-size:.75rem;opacity:.8;display:block}.rinfo .num{font-size:1.7rem}
+.arena{flex:1;display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;min-height:0}
+.side{display:flex;flex-direction:column;gap:.6rem;align-items:stretch;min-width:10rem}
+.ring{position:relative;width:8rem;height:8rem;align-self:center}
+.ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.ring .tv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.8rem}
+.ring.warn .tv{color:var(--red);animation:beat .5s infinite}
+@keyframes beat{50%{transform:scale(1.15)}}
+.qbox{display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.qbox .nl{max-width:46rem}
+.qtag{font-weight:900;font-size:1.45rem;padding:.3rem 1.2rem;border-radius:2rem;background:var(--teal-l);color:var(--teal-d)}
+.qtag.gold{background:linear-gradient(90deg,#FFD54F,#FFB300);color:#5d4000}
+.winner{margin:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.winner .cup{font-size:6rem;animation:float 2s infinite}
+.winner h2{font-size:2.6rem;font-weight:900}
+.podium{display:flex;gap:1.2rem;align-items:flex-end}
+.pod{width:11rem;border-radius:1rem 1rem 0 0;color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:.6rem;font-weight:900;font-size:1.2rem}
+.pod .num{font-size:2.8rem}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* closing */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}
+.sum div{border-radius:1rem;padding:.8rem;text-align:center;font-weight:900;font-size:1.3rem;line-height:1.7;color:#fff}
+.sum .n{display:inline-flex;width:2.4rem;height:2.4rem;border-radius:50%;background:#fff;align-items:center;justify-content:center;font-size:1.4rem}
+.exit{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1rem;min-height:0}
+.talk{background:#FFFDE7;border:2px dashed #FBC02D;border-radius:1rem;padding:.8rem;font-size:1.3rem;font-weight:800;line-height:1.8}
+.talk .ans{display:none;color:var(--teal-d)}.talk.show .ans{display:block}
+.home{background:#F3E5F5;border-radius:1rem;padding:.8rem;font-size:1.25rem;font-weight:800;line-height:1.8;color:#4A148C}
+
+/* start overlay */
+#start{position:fixed;inset:0;z-index:60;background:linear-gradient(135deg,#00A99D,#00695C);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;color:#fff;text-align:center}
+#start .b{background:#fff;color:var(--blue);border-radius:1rem;padding:.2rem 1.4rem;font-size:3rem}
+#start h1{font-size:3.4rem;font-weight:900}
+#start p{font-size:1.4rem;opacity:.9;font-weight:700}
+#start button{font-size:1.8rem;padding:.8rem 2.4rem}
+@media(max-width:800px){html{font-size:15px}html,body{overflow:auto;height:auto}.stage,.exit,.arena{grid-template-columns:1fr}.sum{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div id="start">
+  <div class="b num">٥-٨</div>
+  <h1>تقدير ناتج الجمع</h1>
+  <p>الرياضيات · الصف الثاني الابتدائي · صفحة <span class="num">١٢٦-١٢٧</span></p>
+  <button class="btn o" id="goFull">⛶ ابدأ الدرس بملء الشاشة</button>
+  <button class="btn g" id="goNoFull" style="font-size:1.1rem;padding:.5rem 1.4rem">ابدأ بدون ملء الشاشة</button>
+</div>
+
+<header>
+  <div class="badge num">٥-٨</div>
+  <div class="htitle"><small>الرياضيات · الصف الثاني · الفصل ٥ · صفحة <span class="num">١٢٦-١٢٧</span></small><h1>تقدير ناتج الجمع</h1></div>
+  <div class="clock"><span>⏱</span><span class="t num" id="clockT">٢٠:٠٠</span><button id="clockBtn">ابدأ المؤقّت</button><button id="clockReset">↺</button></div>
+  <button class="hbtn" id="fsBtn" title="ملء الشاشة">⛶</button>
+</header>
+<nav id="tabs"></nav>
+<div class="progress" id="prog"></div>
+
+<main>
+<!-- 1 warmup -->
+<section id="s0">
+  <div class="stitle"><span class="pill blue">أستعدّ</span><h2>أقرّب العدد إلى أقرب عشرة</h2>
+    <div class="cloud" style="margin-right:auto;font-size:1.05rem"><b>أتذكّر:</b> <span class="num">١، ٢، ٣، ٤</span> تُقرَّب إلى الأدنى · <span class="num">٥، ٦، ٧، ٨، ٩</span> تُقرَّب إلى الأعلى</div></div>
+  <div class="wu">
+    <div class="bignum num" id="wuN"></div>
+    <div class="nl" id="wuLine"></div>
+    <div class="row center" id="wuChoices"></div>
+    <div class="fb" id="wuFb"></div>
+    <button class="btn g" id="wuNext">عدد جديد ←</button>
+  </div>
+</section>
+
+<!-- 2 explain -->
+<section id="s1">
+  <div class="stitle"><span class="pill blue">فكرة الدرس</span><h2>أقدّر ناتج الجمع</h2><span class="goal">المفردات: <span style="background:#FFF59D;padding:0 .4rem;border-radius:.3rem;color:var(--ink)">التقريب</span> · إذا لم أكن بحاجة إلى إجابة دقيقة فإنني أقدّر الإجابة</span></div>
+  <div id="explain" style="flex:1;display:flex;min-height:0"></div>
+</section>
+
+<!-- 3 practice -->
+<section id="s2">
+  <div class="stitle"><span class="pill">أتأكّد ✔</span><h2>أقرّب إلى أقرب عشرة، ثم أقدّر ناتج الجمع</h2><span class="goal">تمارين ١-٣ صفحة <span class="num">١٢٦</span></span></div>
+  <div id="practice" style="flex:1;display:flex;min-height:0"></div>
+</section>
+
+<!-- 4 competition -->
+<section id="s3"><div id="comp" style="flex:1;display:flex;flex-direction:column;gap:.7rem;min-height:0"></div></section>
+
+<!-- 5 closing -->
+<section id="s4">
+  <div class="stitle"><span class="pill green">أتذكّر</span><h2>ختام الدرس: كيف أقدّر ناتج الجمع؟</h2></div>
+  <div class="sum">
+    <div style="background:linear-gradient(135deg,#26A69A,#00796B)"><span class="n num" style="color:#00796B">١</span><br>أقرّب كل عدد إلى أقرب عشرة</div>
+    <div style="background:linear-gradient(135deg,#FFA726,#EF6C00)"><span class="n num" style="color:#EF6C00">٢</span><br>الآحاد <span class="num">١-٤</span> للأدنى، و <span class="num">٥-٩</span> للأعلى</div>
+    <div style="background:linear-gradient(135deg,#42A5F5,#1565C0)"><span class="n num" style="color:#1565C0">٣</span><br>أجمع العشرات، فيكون الناتج تقريبيًا</div>
+  </div>
+  <div class="exit">
+    <div class="panel">
+      <div class="qtag">بطاقة الخروج: أقدّر في دفتري</div>
+      <div id="exitP"></div>
+      <div class="row center"><button class="btn o" id="exitShow">أظهر الحل</button><button class="btn g" id="exitNew">مسألة أخرى</button></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="talk" id="talk">🗣 <b>أتحدّث (٤):</b> كيف أقدّر ناتج الجمع؟
+        <div class="ans">✔ أقرّب كل عدد إلى أقرب عشرة، ثم أجمع العشرات.</div>
+        <button class="btn g" style="margin-top:.4rem" onclick="this.closest('.talk').classList.toggle('show')">الإجابة</button></div>
+      <div class="home">📘 <b>الواجب:</b> أتدرّب — تمارين <span class="num">٥</span> إلى <span class="num">١٣</span> صفحة <span class="num">١٢٧</span>.<br>🏠 قدّر مع أسرتك ثمن غرضين من البقالة بتقريب كل سعر إلى أقرب عشرة.</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const AR='٠١٢٣٤٥٦٧٨٩',ar=n=>String(n).replace(/\d/g,d=>AR[d]);
+const $=s=>document.querySelector(s),rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const R=n=>n%10>=5?Math.ceil(n/10)*10:Math.floor(n/10)*10;
+
+/* sound */
+let AC=null;
+function tone(f,d=.15,type='sine',v=.18,delay=0){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+delay;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const sfx={ok(){[523,659,784,1047].forEach((f,i)=>tone(f,.18,'triangle',.2,i*.09))},tick(){tone(880,.06,'square',.06)},buzz(){tone(160,.5,'sawtooth',.15)},click(){tone(600,.05,'triangle',.1)},win(){[523,523,659,784,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.15))}};
+
+/* number line: base..base+10, marks n, optional arrow to rounded */
+function nline(n,show){
+  const base=Math.floor(n/10)*10, X=v=>50+(v-base)*100, t=R(n);
+  let s=`<svg viewBox="0 -150 1100 270">`;
+  s+=`<line x1="20" y1="0" x2="1080" y2="0" stroke="#1E63C6" stroke-width="6"/><polygon points="1095,0 1070,-14 1070,14" fill="#1E63C6"/><polygon points="5,0 30,-14 30,14" fill="#1E63C6"/>`;
+  s+=`<line x1="${X(base+5)}" y1="-70" x2="${X(base+5)}" y2="20" stroke="#B0BEC5" stroke-width="3" stroke-dasharray="8 7"/><text x="${X(base+5)}" y="-78" text-anchor="middle" font-family="Tajawal" font-weight="800" font-size="24" fill="#90A4AE">المنتصف</text>`;
+  for(let v=base;v<=base+10;v++){const ten=v%10===0;
+    s+=`<line x1="${X(v)}" y1="${ten?-20:-14}" x2="${X(v)}" y2="${ten?20:14}" stroke="#1E63C6" stroke-width="${ten?6:4}"/>`;
+    s+=`<text class="lbl ${ten?'ten':''}" x="${X(v)}" y="70">${ar(v)}</text>`;}
+  if(show&&t!==n){const x1=X(n),x2=X(t),mx=(x1+x2)/2,h=-30-Math.abs(x2-x1)*.35;
+    s+=`<path class="arrowp" d="M${x1},-14 Q${mx},${h} ${x2},-16"/>`;
+    s+=`<circle class="tgt fadein" cx="${x2}" cy="0" r="18" fill="#43A047"/>`;
+    s+=`<text class="fadein" x="${x2}" y="-34" text-anchor="middle" font-family="Tajawal" font-weight="900" font-size="26" fill="#2E7D32">${ar(t)}</text>`;}
+  else if(show){s+=`<circle class="tgt" cx="${X(t)}" cy="0" r="18" fill="#43A047"/>`;}
+  s+=`<circle cx="${X(n)}" cy="0" r="16" fill="#F28C28" stroke="#fff" stroke-width="4"/>`;
+  return `<div class="nl">${s}</svg></div>`;
+}
+
+/* vertical problem: cells may be '?' */
+function vp(a,b,res,{cls='',hlA=0,hlB=0,popA=0,popB=0,popR=0}={}){
+  const d=(v,pop,q)=>{ if(v==='?')return ['<span class="q">؟</span>','<span class="q">؟</span>']; const s=String(v).padStart(2,' '); return [...s].map(ch=>ch===' '?'':`<span class="${pop?'pop':''}">${ar(ch)}</span>`); };
+  const A=d(a,popA),B=d(b,popB),Rr=res===''?['','']:d(res,popR);
+  return `<div class="vp ${cls}">
+   <div class="c ${hlA?'hl':''}">${A[0]}</div><div class="c ${hlA?'hl':''}">${A[1]}</div><div></div>
+   <div class="c ${hlB?'hl':''}">${B[0]}</div><div class="c ${hlB?'hl':''}">${B[1]}</div><div class="sign">+</div>
+   <div class="line"></div>
+   <div class="c r">${Rr[0]}</div><div class="c r">${Rr[1]}</div><div></div></div>`;
+}
+function estView(a,b,st,cls=''){
+  const ra=st>=1?R(a):'?', rb=st>=2?R(b):'?', rs=st>=3?R(a)+R(b):'';
+  return `<div class="estrow">
+    <div class="box orig"><h4>المسألة</h4>${vp(a,b,'',{cls,hlA:st===1,hlB:st===2})}</div>
+    <div class="arrows"><div class="arr ${st>=1?'on':''}">تُقرَّب إلى</div><div class="arr ${st>=2?'on':''}">تُقرَّب إلى</div></div>
+    <div class="box rnd"><h4>بعد التقريب</h4>${vp(ra,rb,rs===''?'':rs,{cls,popA:st===1,popB:st===2,popR:st===3})}</div>
+  </div>`;
+}
+
+/* stepper */
+function makeStepper(id,probs,opt={}){
+  let i=0,st=0; const el=document.getElementById(id);
+  function render(){
+    const [a,b]=probs[i]; let msg,line='';
+    if(st===0){msg=`أقدّر ناتج الجمع <b class="num">${ar(a)} + ${ar(b)}</b>`;line=`<div class="cloud"><b>أتذكّر:</b> <span class="num">١، ٢، ٣، ٤</span> تُقرَّب إلى الأدنى<br><span class="num">٥، ٦، ٧، ٨، ٩</span> تُقرَّب إلى الأعلى</div>`;}
+    else if(st<3){const n=st===1?a:b,o=n%10; msg=`<b>الخطوة ١:</b> أقرّب <span class="num">${ar(n)}</span> إلى أقرب عشرة.<br>${o===0?`<span class="num">${ar(n)}</span> عشرات كاملة فيبقى كما هو`:`الآحاد <span class="num">${ar(o)}</span> ${o>=5?'← أقرّبه إلى الأعلى':'← أقرّبه إلى الأدنى'}`}: <b class="num">${ar(R(n))}</b>`; line=nline(n,true);}
+    else{msg=`<b>الخطوة ٢:</b> أجمع العشرات: <b class="num">${ar(R(a))} + ${ar(R(b))} = ${ar(R(a)+R(b))}</b><br>إذن <span class="num">${ar(a)} + ${ar(b)}</span> يساوي <b class="num">${ar(R(a)+R(b))}</b> تقريبًا <span class="ok">✔</span>`;
+      line=`<div class="exact">الناتج الدقيق: <span class="num">${ar(a)} + ${ar(b)} = ${ar(a+b)}</span> — قريب من التقدير 👍</div>`;}
+    el.innerHTML=`<div class="stage">
+      <div class="panel">${opt.labels?`<span class="qnum num">${ar(opt.labels[i])}</span>`:''}<div class="msg">${msg}</div></div>
+      <div class="panel">${estView(a,b,st)}
+        <div class="dots">${[1,2,3].map(k=>`<span class="${st>=k?'on':''}">${ar(k)}</span>`).join('')}</div>
+        <div class="row center">
+          <button class="btn g" data-a="prev" ${st===0?'disabled':''}>→ السابق</button>
+          <button class="btn o" data-a="next" ${st===3?'disabled':''}>${st===0?'ابدأ':'التالي'} ←</button>
+          ${opt.random?'<button class="btn" data-a="new">مثال جديد 🎲</button>':''}
+          ${probs.length>1?`<button class="btn" data-a="q">${i<probs.length-1?'التمرين التالي':'التمرين الأول'} ⟵</button>`:''}
+        </div></div><div class="linebox">${line}</div></div>`;
+  }
+  el.addEventListener('click',e=>{const a=e.target.closest('button')?.dataset.a;if(!a)return;sfx.click();
+    if(a==='next'){st++;if(st===3)sfx.ok();} if(a==='prev')st--; if(a==='new'){probs[0]=gen();st=0;} if(a==='q'){i=(i+1)%probs.length;st=0;} render();});
+  render();
+}
+function gen(){let a,b;do{a=rnd(11,48);b=rnd(11,48)}while(a%10===0||b%10===0||R(a)+R(b)>90);return[a,b]}
+makeStepper('explain',[[14,19]],{random:true});
+makeStepper('practice',[[21,26],[25,28],[33,38]],{labels:[1,2,3]});
+
+/* warmup */
+let wn=0;
+function wuNew(){wn=rnd(11,49);while(wn%10===0)wn=rnd(11,49);const lo=Math.floor(wn/10)*10;
+  $('#wuN').textContent=ar(wn);$('#wuLine').outerHTML=`<div class="nl" id="wuLine">${nline(wn,false).slice(16,-6)}</div>`;
+  $('#wuChoices').innerHTML=[lo,lo+10].map(v=>`<button class="btn choice num" data-v="${v}">${ar(v)}</button>`).join('');$('#wuFb').innerHTML='';}
+$('#wuChoices').onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=+b.dataset.v,t=R(wn);
+  if(v===t){b.classList.add('right');sfx.ok();$('#wuFb').innerHTML=`<span style="color:var(--green)">أحسنت! الآحاد <span class="num">${ar(wn%10)}</span> ${wn%10>=5?'← إلى الأعلى':'← إلى الأدنى'}، فالعدد <span class="num">${ar(wn)}</span> يُقرَّب إلى <span class="num">${ar(t)}</span></span>`;
+    $('#wuLine').innerHTML=nline(wn,true).slice(16,-6);burst(['#43A047','#FFD54F','#00A99D'],40);}
+  else{b.classList.add('wrong');sfx.buzz();$('#wuFb').innerHTML='<span style="color:var(--red)">حاول مرة أخرى — انظر أين المنتصف</span>';}};
+$('#wuNext').onclick=()=>{sfx.click();wuNew()};
+wuNew();
+
+/* exit */
+let ex=gen(),exS=0;const exR=()=>$('#exitP').innerHTML=estView(ex[0],ex[1],exS,'sm');
+$('#exitShow').onclick=()=>{exS=3;sfx.ok();exR()};$('#exitNew').onclick=()=>{ex=gen();exS=0;exR()};exR();
+
+/* competition */
+const BOOK=[[31,47],[43,38],[45,38],[34,49],[31,32],[36,31],[43,30],[50,33],[43,33]];
+const C={names:['فريق الصقور 🦅','فريق النجوم ⭐'],rounds:10,time:30,mode:'mix',score:[0,0],q:[],i:0,left:0,timer:null,rev:false,aw:false};
+const comp=$('#comp');
+const chips=(k,vals,f)=>vals.map(v=>`<button class="chip ${C[k]===v?'on':''}" data-k="${k}" data-v="${v}">${f(v)}</button>`).join('');
+function setup(){stopT();comp.innerHTML=`<div class="setup">
+  <div class="hero"><div class="tr">🏆</div><h2>مسابقة أبطال التقدير</h2><p>الإجابة الصحيحة <span class="num">١٠</span> نقاط · السريعة <span class="num">+٥</span> · السؤال الذهبي الأخير مضاعف</p></div>
+  <div class="teams"><div class="tcard a">الفريق الأول<input id="n0" value="${C.names[0]}"></div><div class="tcard b">الفريق الثاني<input id="n1" value="${C.names[1]}"></div></div>
+  <div class="opt"><label>عدد الأسئلة</label>${chips('rounds',[6,10,14],v=>`<span class="num">${ar(v)}</span>`)}</div>
+  <div class="opt"><label>وقت السؤال</label>${chips('time',[20,30,45],v=>`<span class="num">${ar(v)}</span> ثانية`)}</div>
+  <div class="opt"><label>نوع الأسئلة</label>${chips('mode',['mix','est','round'],v=>({mix:'تقريب + تقدير',est:'تقدير ناتج الجمع',round:'تقريب عدد'})[v])}</div>
+  <div class="row center"><button class="btn o" data-a="start" style="font-size:1.6rem;padding:.7rem 3rem">ابدأ المسابقة 🚀</button></div></div>`;}
+comp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.k){C.names=[$('#n0').value,$('#n1').value];const v=b.dataset.v;C[b.dataset.k]=isNaN(v)?v:+v;sfx.click();setup();return;}
+  const a=b.dataset.a;
+  if(a==='start'){C.names=[$('#n0').value||'الفريق الأول',$('#n1').value||'الفريق الثاني'];C.score=[0,0];C.q=build();C.i=0;sfx.click();play();}
+  else if(a==='rev')reveal();else if(a==='aw0')award(0);else if(a==='aw1')award(1);else if(a==='aw2')award(2);
+  else if(a==='next'){C.i++;C.i>=C.rounds?end():play();}else if(a==='again')setup();});
+function build(){
+  const est=[...BOOK].sort(()=>Math.random()-.5).map(p=>({t:'est',p}));
+  const q=[];
+  for(let k=0;k<C.rounds;k++){
+    const type=C.mode==='mix'?(k%2?'est':'round'):C.mode;
+    if(type==='est')q.push(est.length?est.pop():{t:'est',p:gen()});
+    else{let n=rnd(11,89);while(n%10===0)n=rnd(11,89);q.push({t:'round',n});}
+  }
+  return q;
+}
+function qBody(q,show){
+  if(q.t==='round')return `<div class="vp" style="font-size:min(18vh,10rem);color:var(--blue)"><span></span></div>`.replace('<span></span>',`<div class="c" style="grid-column:1/4">${ar(q.n)}</div>`)+nline(q.n,show);
+  return estView(q.p[0],q.p[1],show?3:0);
+}
+function play(){
+  const q=C.q[C.i],gold=C.i===C.rounds-1;C.rev=false;C.aw=false;
+  comp.innerHTML=`<div class="board">
+    <div class="score a" id="sc0"><span class="nm">${C.names[0]}</span><span class="pt num">${ar(C.score[0])}</span></div>
+    <div class="rinfo"><small>السؤال</small><span class="num">${ar(C.i+1)} / ${ar(C.rounds)}</span></div>
+    <div class="score b" id="sc1"><span class="nm">${C.names[1]}</span><span class="pt num">${ar(C.score[1])}</span></div></div>
+  <div class="arena">
+    <div class="side"><div class="ring" id="ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="60" stroke="#E3ECEC" stroke-width="12" fill="none"/><circle id="arc" cx="70" cy="70" r="60" stroke="#00A99D" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="377" style="transition:stroke-dashoffset 1s linear"/></svg><div class="tv num" id="tv">${ar(C.time)}</div></div>
+      <button class="btn o" data-a="rev" id="revB">إظهار الحل 👁</button></div>
+    <div class="qbox"><div class="qtag ${gold?'gold':''}">${gold?'⭐ السؤال الذهبي ×٢ ⭐ — ':''}${q.t==='round'?'قرّب العدد إلى أقرب عشرة':'قدّر ناتج الجمع'}</div>
+      <div id="qb" style="width:100%;display:flex;flex-direction:column;align-items:center">${qBody(q,false)}</div>
+      <div class="fb" id="fb"></div></div>
+    <div class="side">
+      <button class="btn red" data-a="aw0">✔ ${C.names[0]}</button>
+      <button class="btn blue" data-a="aw1">✔ ${C.names[1]}</button>
+      <button class="btn gray" data-a="aw2">✖ لا أحد</button>
+      <button class="btn" data-a="next" id="nx" style="display:none">${C.i===C.rounds-1?'النتيجة 🏆':'السؤال التالي ←'}</button></div></div>`;
+  C.left=C.time;startT();
+}
+function startT(){stopT();C.timer=setInterval(()=>{C.left--;const tv=$('#tv');if(!tv){stopT();return}
+  tv.textContent=ar(Math.max(C.left,0));$('#arc').style.strokeDashoffset=377*(1-C.left/C.time);
+  if(C.left<=5){$('#ring').classList.add('warn');$('#arc').style.stroke='#E53935';if(C.left>0)sfx.tick();}else if(C.left<=C.time/2)$('#arc').style.stroke='#F5B700';
+  if(C.left<=0){stopT();sfx.buzz();$('#fb').innerHTML='⏰ انتهى الوقت!';}},1000);}
+function stopT(){clearInterval(C.timer);C.timer=null}
+function reveal(){if(C.rev)return;C.rev=true;stopT();const q=C.q[C.i];
+  $('#qb').innerHTML=qBody(q,true);sfx.ok();$('#revB').disabled=true;
+  $('#fb').innerHTML=q.t==='round'?`<span class="num">${ar(q.n)}</span> ← <span class="num">${ar(R(q.n))}</span>`:`<span class="num">${ar(q.p[0])} + ${ar(q.p[1])}</span> يساوي <span class="num">${ar(R(q.p[0])+R(q.p[1]))}</span> تقريبًا`;}
+function award(t){if(C.aw)return;C.aw=true;const fast=C.left>C.time/2,gold=C.i===C.rounds-1;stopT();if(!C.rev)reveal();
+  if(t<2){let p=10+(fast?5:0);if(gold)p*=2;C.score[t]+=p;sfx.ok();const sc=$('#sc'+t);sc.querySelector('.pt').textContent=ar(C.score[t]);sc.classList.add('bump');
+    sc.insertAdjacentHTML('beforeend',`<span class="floatpt">+${ar(p)}</span>`);setTimeout(()=>sc.classList.remove('bump'),400);
+    $('#fb').innerHTML+=`<br>🎉 أحسنتم يا ${C.names[t]}${fast?' — إجابة سريعة!':''}`;burst(t?['#42A5F5','#FFD54F','#fff']:['#EF5350','#FFD54F','#fff'],60);}
+  else sfx.buzz();
+  document.querySelectorAll('[data-a^=aw]').forEach(x=>x.disabled=true);$('#nx').style.display='block';}
+function end(){stopT();const[s0,s1]=C.score,tie=s0===s1,w=s0>s1?0:1,m=Math.max(s0,s1,1);
+  comp.innerHTML=`<div class="winner"><div class="cup">🏆</div><h2>${tie?'تعادل! كلا الفريقين أبطال 👏':'الفائز: '+C.names[w]}</h2>
+  <div class="podium"><div class="pod" style="background:linear-gradient(#EF5350,#C62828);height:${7+9*s0/m}rem">${C.names[0]}<span class="num">${ar(s0)}</span></div>
+  <div class="pod" style="background:linear-gradient(#42A5F5,#1565C0);height:${7+9*s1/m}rem">${C.names[1]}<span class="num">${ar(s1)}</span></div></div>
+  <button class="btn o" data-a="again">مسابقة جديدة 🔁</button></div>`;sfx.win();burst(['#FFD54F','#00A99D','#EF5350','#42A5F5','#fff'],220);}
+setup();
+
+/* confetti */
+const cv=$('#confetti'),cx=cv.getContext('2d');let parts=[],anim=null;
+function size(){cv.width=innerWidth;cv.height=innerHeight}size();addEventListener('resize',size);
+function burst(c,n){for(let i=0;i<n;i++)parts.push({x:innerWidth/2+rnd(-250,250),y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:rnd(6,12),c:c[i%c.length],a:Math.random()*6,l:140});if(!anim)loop();}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);parts.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.2;p.l--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);cx.restore();});parts=parts.filter(p=>p.l>0&&p.y<innerHeight+40);anim=parts.length?requestAnimationFrame(loop):(cx.clearRect(0,0,cv.width,cv.height),null);}
+
+/* tabs + clock */
+const SECS=[['التهيئة',3],['الشرح',5],['أتأكّد',4],['المسابقة',6],['الختام',2]],TOTAL=1200;
+$('#tabs').innerHTML=SECS.map((s,i)=>`<button data-i="${i}">${ar(i+1)}. ${s[0]}<span class="m num">${ar(s[1])} د</span></button>`).join('');
+$('#prog').innerHTML=SECS.map(s=>`<span style="flex:${s[1]}"><div></div></span>`).join('');
+function show(i){document.querySelectorAll('section').forEach((s,j)=>s.classList.toggle('active',i===j));document.querySelectorAll('#tabs button').forEach((b,j)=>b.classList.toggle('active',i===j));if(i!==3)stopT();}
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){sfx.click();show(+b.dataset.i)}};show(0);
+let el=0,clk=null;
+function draw(){const l=Math.max(TOTAL-el,0);$('#clockT').textContent=ar(String(Math.floor(l/60)).padStart(2,'0'))+':'+ar(String(l%60).padStart(2,'0'));
+  let acc=0;const bars=document.querySelectorAll('#prog div'),tabs=document.querySelectorAll('#tabs button');
+  SECS.forEach((s,i)=>{const d=s[1]*60;bars[i].style.width=Math.min(Math.max((el-acc)/d,0),1)*100+'%';tabs[i].classList.toggle('now',!!clk&&el>=acc&&el<acc+d);acc+=d;});}
+function toggleClock(){if(clk){clearInterval(clk);clk=null;$('#clockBtn').textContent='استئناف';}else{clk=setInterval(()=>{el++;draw();if(el>=TOTAL){clearInterval(clk);clk=null;sfx.win();}},1000);$('#clockBtn').textContent='إيقاف';}draw();}
+$('#clockBtn').onclick=toggleClock;
+$('#clockReset').onclick=()=>{clearInterval(clk);clk=null;el=0;$('#clockBtn').textContent='ابدأ المؤقّت';draw();};draw();
+function fs(on){try{if(on&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen();}catch(e){}}
+$('#fsBtn').onclick=()=>fs(!document.fullscreenElement);
+$('#goFull').onclick=()=>{fs(true);$('#start').remove();sfx.ok();toggleClock();};
+$('#goNoFull').onclick=()=>{$('#start').remove();sfx.click();toggleClock();};
+</script>
+</body>
+</html>
